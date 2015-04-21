@@ -3,13 +3,25 @@ package com.parkingapp.connection;
 import android.os.StrictMode;
 
 import com.parkingapp.exception.ParkingAppException;
+import com.parkingapp.parser.SFParkBean;
+import com.parkingapp.parser.SfXmlParser;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by pooja on 4/13/2015.
@@ -61,18 +73,16 @@ public class RESTConnectionHandler {
      * @param urlStr
      * @return API response string
      */
-  public StringBuilder connect(String urlStr) throws ParkingAppException{
+  public List<SFParkBean> connect(String urlStr) throws ParkingAppException{
 
       //  String urlStr = "http://api.sfpark.org/sfpark/rest/availabilityservice?lat=37.792275&long=-122.397089&radius=0.25&uom=mile&method=availability&response=xml";
       // String uri = urlStr;
-      BufferedReader rd = null;
       HttpURLConnection conn =null;
       try {
 
           int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
-          if (SDK_INT > 8)
-          {
+          if (SDK_INT > 8) {
               StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                       .permitAll().build();
               StrictMode.setThreadPolicy(policy);
@@ -82,7 +92,7 @@ public class RESTConnectionHandler {
           URL url = new URL(urlStr);
 
           // Open a new connection for the passed URL
-          conn =  (HttpURLConnection) url.openConnection();
+          conn = (HttpURLConnection) url.openConnection();
 
           /* When the connection is successful, the response code is 200 OK,
             If not, the connection is unsuccessful. In case of unsuccessful connection,
@@ -92,27 +102,34 @@ public class RESTConnectionHandler {
               throw new IOException(conn.getResponseMessage());
           }
 
-          // Buffer the result into a string
-          rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+          SfXmlParser parser = new SfXmlParser();
+          parser.createParser();
+          Document document = parser.getParser().parse(conn.getInputStream());
+          parser.setDocument(document);
+
+          List<SFParkBean> list = parser.parseXML();
+         return list;
+          /*BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
           StringBuilder sb = new StringBuilder();
           String line;
-          while ((line = rd.readLine()) != null) {
+          while ((line= rd.readLine())!= null) {
               sb.append(line);
           }
-        return sb;
+          return sb.toString();
+
+      */
+      }catch(SAXException se) {
+          se.printStackTrace();
+          throw new ParkingAppException(se,se.getMessage());
+      }catch(IOException ioe) {
+          ioe.printStackTrace();
+          throw new ParkingAppException(ioe,ioe.getMessage());
       } catch (Exception e) {
           throw new ParkingAppException(e,e.getMessage());
-      }
-        finally {
-          if(rd != null) {
-              try {
-                  rd.close();
-              } catch(IOException e) {
-                  throw new ParkingAppException(e,e.getMessage());
-              }
-
-          }
-          conn.disconnect();
+      }finally {
+          if(conn != null)
+            conn.disconnect();
       }
   }
 }

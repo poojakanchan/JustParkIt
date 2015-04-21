@@ -1,8 +1,11 @@
 package com.parkingapp.connection;
 
 import com.parkingapp.exception.ParkingAppException;
+import com.parkingapp.parser.SFParkBean;
+import com.parkingapp.parser.SfXmlParser;
 import com.parkingapp.utility.Constants;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +23,7 @@ public class SFParkHandler {
      * @return response of availability service API
      * @throws ParkingAppException
      */
-    public StringBuilder callAvailabilityService(String latitude, String longitude, String radius) throws ParkingAppException{
+    public List<SFParkBean> callAvailabilityService(String latitude, String longitude, String radius) throws ParkingAppException{
 
         List<String> parameters = new ArrayList<String>();
         parameters.add("lat=" + latitude);
@@ -32,8 +35,9 @@ public class SFParkHandler {
         RESTConnectionHandler restHandler = RESTConnectionHandler.getRESTConnectionHandler();
 
         String url = restHandler.generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
-        StringBuilder response =  restHandler.connect(url);
-        return response;
+        return restHandler.connect(url);
+        //StringBuilder response =  restHandler.connect(url);
+        //return response;
     }
 
 }
