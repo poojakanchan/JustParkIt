@@ -8,6 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.parkingapp.parser.OperationHoursBean;
+import com.parkingapp.parser.SFParkBean;
+import com.parkingapp.parser.SfXmlParser;
 import com.parkingapp.sample.R;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.exception.ParkingAppException;
@@ -33,6 +36,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
@@ -49,14 +53,39 @@ public class MainActivity extends ActionBarActivity {
         String latitude= "37.792275";
         String longitude ="-122.397089";
         String radius = "0.25";
-        StringBuilder response = null;
+        //StringBuilder response = null;
+        List<SFParkBean> response = null;
         try {
             response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+
         } catch(ParkingAppException e) {
 
             }
         if(response != null) {
-            t.setText(response);
+            StringBuilder sf = new StringBuilder();
+            int count =0;
+            for(SFParkBean bean: response) {
+            count ++;
+            if(bean.getOperationHours() != null) {
+                sf.append(" ********* Bean Info ********* ");
+                sf.append("Name " + bean.getName());
+                sf.append("Address " + bean.getAddress() + "\n");
+                sf.append("latitude " + bean.getLatitude() + "\n");
+                sf.append("longitude " + bean.getLongitude() + "\n");
+                sf.append("type " + bean.getType() + "\n");
+                sf.append("contact " + bean.getContactNumber() + "\n");
+                sf.append(" operation hours \n");
+                for (OperationHoursBean oprBean : bean.getOperationHours()) {
+                    sf.append("fromday " + oprBean.getFromDay() + "\n");
+                    sf.append("today" + oprBean.getToDay() + "\n");
+                    sf.append("starttime " + oprBean.getStartTime() + "\n");
+                    sf.append("endtime " + oprBean.getEndTime() + "\n");
+
+                }
+            }
+            }
+
+            t.setText("count " + count + "info " + sf);
         }
     }
 
