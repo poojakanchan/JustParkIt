@@ -11,15 +11,20 @@ import android.view.MenuItem;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.example.pooja.sfparksample.R;
+import com.parkingapp.parser.OperationHoursBean;
+import com.parkingapp.parser.SFParkBean;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
@@ -62,7 +67,47 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     }
 
     private void setUpMap() {
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                SFParkHandler sfParkHandler = new SFParkHandler();
+                String latitude = String.valueOf(latLng.latitude);
+                String longitude = String.valueOf(latLng.longitude);
+                String radius = "0.25";
 
+                List<SFParkBean> response = null;
+
+                try {
+                    response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+                } catch(ParkingAppException e) {
+
+                }
+                if(response != null) {
+                    StringBuilder sf = new StringBuilder();
+                    int count = 0;
+                    for(SFParkBean bean: response) {
+                        count ++;
+                        if(bean.getOperationHours() != null) {
+                            sf.append("Name: " + bean.getName());
+                        }
+                    }
+
+                    String information = sf.toString();
+                    mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Information")
+                            .snippet(information));
+                }
+                /*
+                mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Geographical Coordinates")
+                        .snippet("LAT: " + latLng.latitude + " LNG: " + latLng.longitude + ));
+                */
+
+            }
+        });
     }
 
     @Override
