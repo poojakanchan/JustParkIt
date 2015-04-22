@@ -1,92 +1,68 @@
 package com.parkingapp.sample;
 
-import android.os.StrictMode;
-import android.support.v7.app.ActionBarActivity;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.format.DateUtils;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import com.parkingapp.parser.OperationHoursBean;
-import com.parkingapp.parser.SFParkBean;
-import com.parkingapp.parser.SfXmlParser;
-import com.parkingapp.sample.R;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.exception.ParkingAppException;
+import com.example.pooja.sfparksample.R;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.HttpEntityWrapper;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends FragmentActivity implements LocationListener {
 
-    private static final int SECOND_IN_MILLIS = (int) DateUtils.SECOND_IN_MILLIS;
+    private GoogleMap mMap;
+    private LocationManager locationManager;
+    private static final long MIN_TIME = 400;
+    private static final float MIN_DISTANCE = 800;
 
-    @Override
+
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        TextView t = (TextView)findViewById(R.id.apimsgTextView);
-        SFParkHandler sfParkHandler = new SFParkHandler();
-        String latitude= "37.792275";
-        String longitude ="-122.397089";
-        String radius = "0.25";
-        //StringBuilder response = null;
-        List<SFParkBean> response = null;
-        try {
-            response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+        setContentView(R.layout.activity_map);
+        setUpMapIfNeeded();
+        mMap.setMyLocationEnabled(true);
+        mMap.getMyLocation();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
 
-        } catch(ParkingAppException e) {
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+    }
+
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
             }
-        if(response != null) {
-            StringBuilder sf = new StringBuilder();
-            int count =0;
-            for(SFParkBean bean: response) {
-            count ++;
-            if(bean.getOperationHours() != null) {
-                sf.append(" ********* Bean Info ********* ");
-                sf.append("Name " + bean.getName());
-                sf.append("Address " + bean.getAddress() + "\n");
-                sf.append("latitude " + bean.getLatitude() + "\n");
-                sf.append("longitude " + bean.getLongitude() + "\n");
-                sf.append("type " + bean.getType() + "\n");
-                sf.append("contact " + bean.getContactNumber() + "\n");
-                sf.append(" operation hours \n");
-                for (OperationHoursBean oprBean : bean.getOperationHours()) {
-                    sf.append("fromday " + oprBean.getFromDay() + "\n");
-                    sf.append("today" + oprBean.getToDay() + "\n");
-                    sf.append("starttime " + oprBean.getStartTime() + "\n");
-                    sf.append("endtime " + oprBean.getEndTime() + "\n");
-
-                }
-            }
-            }
-
-            t.setText("count " + count + "info " + sf);
         }
+    }
+
+    private void setUpMap() {
+
     }
 
     @Override
@@ -115,22 +91,41 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
 
-
-private static class InflatingEntity extends HttpEntityWrapper {
-    public InflatingEntity(HttpEntity wrapped) {
-        super(wrapped);
     }
 
     @Override
-    public InputStream getContent() throws IOException {
-        return new GZIPInputStream(wrappedEntity.getContent());
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
     }
 
     @Override
-    public long getContentLength() {
-        return -1;
+    public void onProviderEnabled(String provider) {
+
     }
-}
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+
+    private static class InflatingEntity extends HttpEntityWrapper {
+        public InflatingEntity(HttpEntity wrapped) {
+            super(wrapped);
+        }
+
+        @Override
+        public InputStream getContent() throws IOException {
+            return new GZIPInputStream(wrappedEntity.getContent());
+        }
+
+        @Override
+        public long getContentLength() {
+            return -1;
+        }
+    }
 
 }
