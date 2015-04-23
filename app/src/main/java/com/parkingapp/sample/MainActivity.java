@@ -1,5 +1,11 @@
 package com.parkingapp.sample;
-
+/**
+ * File history
+ * 1. Raymond Thai
+ * changes: added onlocationchangelistener to setupmaps method which changes map camera to user's current location
+ *          changed information snippet to parking spot snippet
+ *          added personal icons
+ */
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,6 +15,8 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -68,6 +76,21 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            private Location mLocation = null;
+            @Override
+            public void onMyLocationChange(Location myLocation) {
+
+                if (mLocation == null) {
+                    mLocation = myLocation;
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())).title("You are here"));
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
+                    mMap.animateCamera(update);
+                }
+            }
+        });
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -85,18 +108,20 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 }
                 if(response != null) {
                     StringBuilder sf = new StringBuilder();
-                    int count = 0;
+                    int count = 1;
                     for(SFParkBean bean: response) {
-                        count ++;
-                        if(bean.getOperationHours() != null) {
-                            sf.append("Name: " + bean.getName());
-                        }
-                    }
 
-                    String information = sf.toString();
+                            sf.append(" " + count +":"+ bean.getName());
+                        count ++;
+
+                    }
+                    if(count == 1) {
+                        sf.append("Parking not found");
+                    }
+                        String information = sf.toString();
                     mMap.addMarker(new MarkerOptions()
                             .position(latLng)
-                            .title("Information")
+                            .title("Parking spots")
                             .snippet(information));
                 }
                 /*
