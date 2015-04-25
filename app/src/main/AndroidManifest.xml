@@ -19,14 +19,13 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyC3So99TAmW4UM1o0YfNqODs8lk2it0lpM" />
+            android:value="@string/google_maps_key" />
 
         <uses-library android:name="com.google.android.maps"/>
         <activity
             android:name="com.parkingapp.sample.MainActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

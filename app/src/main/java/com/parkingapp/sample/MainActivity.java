@@ -5,6 +5,8 @@ package com.parkingapp.sample;
  * changes: added onlocationchangelistener to setupmaps method which changes map camera to user's current location
  *          changed information snippet to parking spot snippet
  *          added personal icons
+ *          implemented pooja's fix to delete previous marker when new marker is selected
+ *          implemented Clear Marker button so user can clear all markers on map
  */
 import android.content.Context;
 import android.location.Location;
@@ -14,10 +16,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -61,12 +65,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         setUpMapIfNeeded();
     }
 
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -115,6 +121,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                         count ++;
 
                     }
+                    mMap.clear();
                     if(count == 1) {
                         sf.append("Parking not found");
                     }
@@ -179,6 +186,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    /**
+     * This method will clear markers on map when user clicks the clear Markers button on the screen
+     * @param view
+     */
+    public void onClick_clearMarker(View view) {
+        mMap.clear();
     }
 
 
