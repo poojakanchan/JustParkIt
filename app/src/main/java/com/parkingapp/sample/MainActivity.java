@@ -14,9 +14,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +27,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.exception.ParkingAppException;
@@ -47,6 +50,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 800;
+    private String information;
 
 
     protected void onCreate(Bundle savedInstanceState)  {
@@ -110,27 +114,46 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
                 try {
                     response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
-                } catch(ParkingAppException e) {
+                } catch (ParkingAppException e) {
 
                 }
-                if(response != null) {
+                if (response != null) {
                     StringBuilder sf = new StringBuilder();
                     int count = 1;
-                    for(SFParkBean bean: response) {
+                    for (SFParkBean bean : response) {
 
-                            sf.append(" " + count +":"+ bean.getName());
-                            count ++;
+                        sf.append(" " + count + " : " + bean.getName() + "\n");
+                        //Log.d("DEMO=====>", sf.toString());
+                        count++;
 
                     }
+                    setInformation(sf.toString());
                     mMap.clear();
-                    if(count == 1) {
+                    if (count == 1) {
                         sf.append("Parking not found");
                     }
-                        String information = sf.toString();
+
                     mMap.addMarker(new MarkerOptions()
                             .position(latLng)
                             .title("Parking spots")
-                            .snippet(information));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    //.snippet("1: ABC \n" + "2: XYZ")
+
+                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                        @Override
+                        public View getInfoWindow(Marker marker) {
+                            return null;
+                        }
+
+                        @Override
+                        public View getInfoContents(Marker marker) {
+                            View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                            TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                            tvInformation.setText(getInformation());
+                            return customView;
+                        }
+                    });
 
                 }
                 /*
@@ -196,6 +219,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
      */
     public void onClick_clearMarker(View view) {
         mMap.clear();
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
+    }
+
+    public String getInformation(){
+        return information;
     }
 
 
