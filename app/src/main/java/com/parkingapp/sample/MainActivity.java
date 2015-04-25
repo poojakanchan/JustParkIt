@@ -23,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
@@ -91,7 +92,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     mLocation = myLocation;
                     mMap.clear();
                     mMap.addMarker(new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())).title("You are here"));
-                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
                 }
@@ -118,7 +119,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     for(SFParkBean bean: response) {
 
                             sf.append(" " + count +":"+ bean.getName());
-                        count ++;
+                            count ++;
 
                     }
                     mMap.clear();
@@ -130,6 +131,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                             .position(latLng)
                             .title("Parking spots")
                             .snippet(information));
+
                 }
                 /*
                 mMap.addMarker(new MarkerOptions()
