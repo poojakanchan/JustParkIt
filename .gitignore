@@ -4,3 +4,4 @@
 *.iml
 local.properties
 .DS_Store 
+app/src/main/res/values/google_maps_api.xml
