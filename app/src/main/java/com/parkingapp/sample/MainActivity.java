@@ -127,12 +127,17 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                         count++;
 
                     }
+                    // set the information using Setter.
                     setInformation(sf.toString());
+
                     mMap.clear();
+
                     if (count == 1) {
                         sf.append("Parking not found");
+                        setInformation(sf.toString());
                     }
 
+                    // set the Marker options.
                     mMap.addMarker(new MarkerOptions()
                             .position(latLng)
                             .title("Parking spots")
@@ -140,6 +145,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
                     //.snippet("1: ABC \n" + "2: XYZ")
 
+                    // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
                     mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
@@ -148,8 +154,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
                         @Override
                         public View getInfoContents(Marker marker) {
+                            // Define a customView to attach it onClick of marker.
                             View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                            // inflate the customView layout with TextView.
                             TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                            // get the information.
                             tvInformation.setText(getInformation());
                             return customView;
                         }
@@ -221,6 +230,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         mMap.clear();
     }
 
+    // getter and setter for Information. In order to access it globally.
     public void setInformation(String information) {
         this.information = information;
     }
