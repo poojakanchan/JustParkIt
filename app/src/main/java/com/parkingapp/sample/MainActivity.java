@@ -1,17 +1,33 @@
 package com.parkingapp.sample;
-
+/**
+ * File history
+ * 1. Raymond Thai
+ * changes: added onlocationchangelistener to setupmaps method which changes map camera to user's current location
+ *          changed information snippet to parking spot snippet
+ *          added personal icons
+ *          implemented pooja's fix to delete previous marker when new marker is selected
+ *          implemented Clear Marker button so user can clear all markers on map
+ */
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.exception.ParkingAppException;
@@ -34,6 +50,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 800;
+    private String information;
 
 
     protected void onCreate(Bundle savedInstanceState)  {
@@ -53,12 +70,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         setUpMapIfNeeded();
     }
 
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -68,6 +87,21 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            private Location mLocation = null;
+            @Override
+            public void onMyLocationChange(Location myLocation) {
+
+                if (mLocation == null) {
+                    mLocation = myLocation;
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())).title("You are here"));
+                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
+                    mMap.animateCamera(update);
+                }
+            }
+        });
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -80,24 +114,56 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
                 try {
                     response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
-                } catch(ParkingAppException e) {
+                } catch (ParkingAppException e) {
 
                 }
-                if(response != null) {
+                if (response != null) {
                     StringBuilder sf = new StringBuilder();
-                    int count = 0;
-                    for(SFParkBean bean: response) {
-                        count ++;
-                        if(bean.getOperationHours() != null) {
-                            sf.append("Name: " + bean.getName());
-                        }
+                    int count = 1;
+                    for (SFParkBean bean : response) {
+
+                        sf.append(" " + count + " : " + bean.getName() + "\n");
+                        //Log.d("DEMO=====>", sf.toString());
+                        count++;
+
+                    }
+                    // set the information using Setter.
+                    setInformation(sf.toString());
+
+                    mMap.clear();
+
+                    if (count == 1) {
+                        sf.append("Parking not found");
+                        setInformation(sf.toString());
                     }
 
-                    String information = sf.toString();
+                    // set the Marker options.
                     mMap.addMarker(new MarkerOptions()
                             .position(latLng)
-                            .title("Information")
-                            .snippet(information));
+                            .title("Parking spots")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    //.snippet("1: ABC \n" + "2: XYZ")
+
+                    // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
+                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                        @Override
+                        public View getInfoWindow(Marker marker) {
+                            return null;
+                        }
+
+                        @Override
+                        public View getInfoContents(Marker marker) {
+                            // Define a customView to attach it onClick of marker.
+                            View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                            // inflate the customView layout with TextView.
+                            TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                            // get the information.
+                            tvInformation.setText(getInformation());
+                            return customView;
+                        }
+                    });
+
                 }
                 /*
                 mMap.addMarker(new MarkerOptions()
@@ -154,6 +220,23 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    /**
+     * This method will clear markers on map when user clicks the clear Markers button on the screen
+     * @param view
+     */
+    public void onClick_clearMarker(View view) {
+        mMap.clear();
+    }
+
+    // getter and setter for Information. In order to access it globally.
+    public void setInformation(String information) {
+        this.information = information;
+    }
+
+    public String getInformation(){
+        return information;
     }
 
 
