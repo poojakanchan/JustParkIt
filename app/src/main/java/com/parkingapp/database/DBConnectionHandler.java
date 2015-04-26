@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
  * Created by nayanakamath on 4/24/15.
  * Class handles DataBase connection and queries to SQLite.
  * Also parses 'street.csv' file and inserts the data to DataBase
+ * There is a bug in this code: Insert happens everytime you run it, will work on it later today!
  */
 
 public class DBConnectionHandler {
@@ -32,9 +33,7 @@ public class DBConnectionHandler {
         }
 
         SQLiteDatabase db = contextWrapper.openOrCreateDatabase("StreetCleaningDB", Context.MODE_PRIVATE, null);
-        db.execSQL("DROP TABLE Sfsu_StreetCleaning");
         db.execSQL("CREATE TABLE IF NOT EXISTS Sfsu_StreetCleaning(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour NUMBER, ToHour NUMBER, Holidays CHAR, Week1OfMonth CHAR, Week2OfMonth CHAR, Week3OfMonth CHAR, Week4OfMonth CHAR, Week5OfMonth CHAR, LF_FADD NUMBER, LF_TOADD NUMBER, RT_TOADD NUMBER, RT_FADD NUMBER, STREETNAME VARCHAR, ZIP_CODE NUMBER, NHOOD VARCHAR);");
- //       db.execSQL("CREATE TABLE IF NOT EXISTS Sfsu_StreetCleaning(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour VARCHAR, ToHour VARCHAR, Holidays VARCHAR, Week1OfMonth VARCHAR, Week2OfMonth VARCHAR, Week3OfMonth VARCHAR, Week4OfMonth VARCHAR, Week5OfMonth VARCHAR, LF_FADD VARCHAR, LF_TOADD VARCHAR, RT_TOADD VARCHAR, RT_FADD VARCHAR, STREETNAME VARCHAR, ZIP_CODE VARCHAR, NHOOD VARCHAR);");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";

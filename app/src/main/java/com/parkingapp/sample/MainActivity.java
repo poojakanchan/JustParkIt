@@ -57,7 +57,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
 
-        ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+
 
         setContentView(R.layout.activity_map);
 
@@ -69,8 +69,10 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         // setup default location onMap load event
         Criteria criteria = new Criteria();
 
-        DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
-        dbConnectionHandler.createDB(contextWrapper);
+        // Use this for database connection
+        // ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+        // DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
+        // dbConnectionHandler.createDB(contextWrapper);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
