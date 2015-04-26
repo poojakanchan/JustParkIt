@@ -8,32 +8,32 @@ package com.parkingapp.sample;
  *          implemented pooja's fix to delete previous marker when new marker is selected
  *          implemented Clear Marker button so user can clear all markers on map
  */
+
 import android.content.Context;
 import android.location.Criteria;
+import android.content.ContextWrapper;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.pooja.sfparksample.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
+import com.parkingapp.database.DBConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
-import com.example.pooja.sfparksample.R;
-import com.parkingapp.parser.OperationHoursBean;
 import com.parkingapp.parser.SFParkBean;
 
 import org.apache.http.HttpEntity;
@@ -56,6 +56,9 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
+
+        ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+
         setContentView(R.layout.activity_map);
 
         setUpMapIfNeeded();
@@ -63,9 +66,12 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
 
-
         // setup default location onMap load event
         Criteria criteria = new Criteria();
+
+        DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
+        dbConnectionHandler.createDB(contextWrapper);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
 
