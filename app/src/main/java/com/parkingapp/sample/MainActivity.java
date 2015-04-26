@@ -10,8 +10,10 @@ package com.parkingapp.sample;
  */
 
 import android.content.Context;
+import android.location.Address;
 import android.location.Criteria;
 import android.content.ContextWrapper;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -52,7 +54,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 800;
     private String information;
-
+    private String streetCleaningInformation;
 
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -205,6 +207,58 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
             }
         });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Geocoder geocoder = new Geocoder(getApplicationContext());
+                geocoder.isPresent();
+                String addressText;
+                List<Address> matches = null;
+                try {
+                    matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (matches != null && matches.size() > 0) {
+                    Address address = matches.get(0);
+                    addressText = String.format("%s,\n%s\n%s",
+                            address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
+                            address.getLocality(), address.getPostalCode());
+                    String title = getString(R.string.street_cleaning_info);
+                    setStreetCleaningInformation(addressText);
+                    addMarker(latLng, title);
+                }
+            }
+        });
+    }
+
+    private void addMarker(LatLng latLng, String title) {
+        mMap.clear();
+        // set the Marker options.
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+
+        // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Define a customView to attach it onClick of marker.
+                View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                // inflate the customView layout with TextView.
+                TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                // get the information.
+                tvInformation.setText(getStreetCleaningInformation());
+                return customView;
+            }
+        });
     }
 
     @Override
@@ -270,6 +324,13 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         return information;
     }
 
+    public String getStreetCleaningInformation() {
+        return streetCleaningInformation;
+    }
+
+    public void setStreetCleaningInformation(String streetCleaningInformation) {
+        this.streetCleaningInformation = streetCleaningInformation;
+    }
 
     private static class InflatingEntity extends HttpEntityWrapper {
         public InflatingEntity(HttpEntity wrapped) {
