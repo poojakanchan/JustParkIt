@@ -1,11 +1,12 @@
 package com.parkingapp.database;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+
+import com.parkingapp.utility.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,67 +16,59 @@ import java.io.InputStreamReader;
 /**
  * Created by nayanakamath on 4/24/15.
  * Class handles DataBase connection and queries to SQLite.
- * Also parses 'street.csv' file and inserts the data to DataBase
- * There is a bug in this code: Insert happens everytime you run it, will work on it later today!
+/
+ /*
+ File history
+ 1. Pooja K
+ * Added a parsing method parseSQL for sf_street_cleaning.sql file. It parses data from parser and stores in database
  */
 
 public class DBConnectionHandler {
 
-    public void createDB(ContextWrapper contextWrapper) {
+    public void parseSQL(SQLiteDatabase db,AssetManager assetManager) {
+
+        InputStream inputStream = null;
+        try {
+            inputStream = assetManager.open(Constants.SQL_STREET_CLEANING_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(inputStream != null) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            String line = null;
+
+            try {
+
+                while ((line = br.readLine()) != null) {
+                    db.execSQL(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+   }
+
+    public String createDB(ContextWrapper contextWrapper) {
 
         AssetManager assetManager = contextWrapper.getAssets();
-        InputStream inputStream = null;
-
-        try {
-            inputStream = assetManager.open("street.csv");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         SQLiteDatabase db = contextWrapper.openOrCreateDatabase("StreetCleaningDB", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS Sfsu_StreetCleaning(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour NUMBER, ToHour NUMBER, Holidays CHAR, Week1OfMonth CHAR, Week2OfMonth CHAR, Week3OfMonth CHAR, Week4OfMonth CHAR, Week5OfMonth CHAR, LF_FADD NUMBER, LF_TOADD NUMBER, RT_TOADD NUMBER, RT_FADD NUMBER, STREETNAME VARCHAR, ZIP_CODE NUMBER, NHOOD VARCHAR);");
+       db.execSQL("DROP TABLE Sfsu_StreetCleaning");
+        db.execSQL(" CREATE TABLE IF NOT EXISTS Sfsu_StreetCleaning(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour VARCHAR, ToHour VARCHAR, Holidays CHAR, Week1OfMonth CHAR, Week2OfMonth CHAR, Week3OfMonth CHAR, Week4OfMonth CHAR, Week5OfMonth CHAR, LF_FADD NUMBER, LF_TOADD NUMBER, RT_TOADD NUMBER, RT_FADD NUMBER, STREETNAME VARCHAR, ZIP_CODE NUMBER, NHOOD VARCHAR);");
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-        String line = "";
+        parseSQL(db,assetManager);
+       Cursor c = db.rawQuery("SELECT * FROM Sfsu_StreetCleaning where ZIP_CODE=94132 ;", null); // street name & from two three field & zip code
 
-        db.beginTransaction();
+        StringBuilder buffer = new StringBuilder();
 
-        try {
+        while (c.moveToNext()) {
 
-            while((line = br.readLine())!= null) {
-
-               String[] columns = line.split(",");
-
-               ContentValues cv = new ContentValues(columns.length);
-
-               cv.put("WeekDay", columns[0].trim());
-               cv.put("RightLeft", columns[1].trim());
-               cv.put("Corridor", columns[2].trim());
-               cv.put("FromHour", columns[3].trim());
-               cv.put("ToHour", columns[4].trim());
-               cv.put("Holidays", columns[5].trim());
-               cv.put("Week1OfMonth", columns[6].trim());
-               cv.put("Week2OfMonth", columns[7].trim());
-               cv.put("Week3OfMonth", columns[8].trim());
-               cv.put("Week4OfMonth", columns[9].trim());
-               cv.put("Week5OfMonth", columns[10].trim());
-               cv.put("LF_FADD", columns[11].trim());
-               cv.put("LF_TOADD", columns[12].trim());
-               cv.put("RT_TOADD", columns[13].trim());
-               cv.put("RT_FADD", columns[14].trim());
-               cv.put("STREETNAME", columns[15].trim());
-               cv.put("ZIP_CODE", columns[16].trim());
-               cv.put("NHOOD", columns[17].trim());
-
-               long insertState = db.insert("Sfsu_StreetCleaning", null, cv);
-               Log.d("", "Insert state: " + insertState);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            buffer.append("name: " + c.getString(0) + "\n");
+            buffer.append("WeekDay: " + c.getString(1) + "\n\n");
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        Log.d("Transaction Successful", "!");
+        c.close();
+
+        db.close();
+        return buffer.toString();
     }
 }
