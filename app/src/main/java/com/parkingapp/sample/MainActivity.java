@@ -8,31 +8,32 @@ package com.parkingapp.sample;
  *          implemented pooja's fix to delete previous marker when new marker is selected
  *          implemented Clear Marker button so user can clear all markers on map
  */
+
 import android.content.Context;
+import android.location.Criteria;
+import android.content.ContextWrapper;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.pooja.sfparksample.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
+import com.parkingapp.database.DBConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
-import com.example.pooja.sfparksample.R;
-import com.parkingapp.parser.OperationHoursBean;
 import com.parkingapp.parser.SFParkBean;
 
 import org.apache.http.HttpEntity;
@@ -55,12 +56,38 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_map);
+
         setUpMapIfNeeded();
+
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
+
+        // setup default location onMap load event
+        Criteria criteria = new Criteria();
+
+        // Use this for database connection
+        // ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+        // DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
+        // dbConnectionHandler.createDB(contextWrapper);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+
+
+        String provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
+        double lat =  37.773972;
+        double lng = -122.431297;
+        LatLng coordinate = new LatLng(lat, lng);
+        CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(37.773972,-122.431297));
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(12);
+
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
 
     }
 
@@ -87,6 +114,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
+
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
             @Override
@@ -99,6 +127,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
+                    mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.773972,-122.431297) , 14.0f) );
                 }
             }
         });
@@ -125,7 +154,9 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                         sf.append(" " + count + " : " + bean.getName() + "\n");
                         //Log.d("DEMO=====>", sf.toString());
                         count++;
-
+                        if(count == 9){
+                            break;
+                        }
                     }
                     // set the information using Setter.
                     setInformation(sf.toString());
