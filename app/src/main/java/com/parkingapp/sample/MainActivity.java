@@ -126,7 +126,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     mLocation = myLocation;
                     mMap.clear();
                     mMap.addMarker(new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())).title("You are here"));
-                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
                     mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.773972,-122.431297) , 14.0f) );
