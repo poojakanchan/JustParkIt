@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
-public class MainActivity extends FragmentActivity implements LocationListener {
+public class MainActivity extends ActionBarActivity implements LocationListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -283,8 +284,11 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         if (id == R.id.action_settings) {
             return true;
         }
-
+        if(id== R.id.action_layers){
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+
     }
 
     @Override

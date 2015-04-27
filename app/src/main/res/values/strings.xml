@@ -6,4 +6,12 @@
     <string name="location">Location</string>
     <string name="get_data">Get Data</string>
     <string name="street_cleaning_info">Street Cleaning Info</string>
+    <string name="search">Search</string>
+    <string name="Layers">Layers</string>
+    <string-array name="maps_array">
+        <item>Normal</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+
+    </string-array>
 </resources>
