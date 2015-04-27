@@ -82,10 +82,10 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
         String provider = locationManager.getBestProvider(criteria, false);
         Location location = locationManager.getLastKnownLocation(provider);
-        double lat =  37.773972;
-        double lng = -122.431297;
+        double lat =  37.721897;
+        double lng = -122.47820939999997;
         LatLng coordinate = new LatLng(lat, lng);
-        CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(37.773972,-122.431297));
+        CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(37.721897,-122.47820939999997));
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(12);
 
         mMap.moveCamera(center);
@@ -129,7 +129,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
-                    mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.773972,-122.431297) , 14.0f) );
+                    mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.721897,-122.47820939999997) , 14.0f) );
                 }
             }
         });
