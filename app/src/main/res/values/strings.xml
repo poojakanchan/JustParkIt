@@ -8,10 +8,9 @@
     <string name="street_cleaning_info">Street Cleaning Info</string>
     <string name="search">Search</string>
     <string name="Layers">Layers</string>
-    <string-array name="maps_array">
-        <item>Normal</item>
-        <item>Satellite</item>
-        <item>Terrain</item>
+    <string name="normal">Normal</string>
+    <string name="satellite">Satellite</string>
+    <string name="terrain">Terrain</string>
 
-    </string-array>
+
 </resources>

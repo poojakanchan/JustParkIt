@@ -281,7 +281,9 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        switch (id) {
+            case R.id.action_settings:
+                openSearch();
             return true;
         }
         if(id== R.id.action_layers){
@@ -289,6 +291,9 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         }
         return super.onOptionsItemSelected(item);
 
+    }
+
+    private void openSearch() {
     }
 
     @Override
