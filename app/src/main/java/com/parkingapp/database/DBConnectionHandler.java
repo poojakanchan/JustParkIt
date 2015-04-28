@@ -39,14 +39,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
     private static final String TABLE_NAME ="Sfsu_StreetCleaning";
 
     public DBConnectionHandler(Context context) {
-
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context=context;
-
     }
 
     public void parseSQL(SQLiteDatabase sqLiteDatabase, AssetManager assetManager) {
-
         InputStream inputStream = null;
         try {
             inputStream = assetManager.open(Constants.SQL_STREET_CLEANING_FILE);
@@ -56,9 +53,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         if (inputStream != null) {
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line = null;
-
             try {
-
                 while ((line = br.readLine()) != null) {
                     sqLiteDatabase.execSQL(line);
                 }
@@ -70,7 +65,6 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
         db.execSQL(" CREATE TABLE IF NOT EXISTS "+ TABLE_NAME+"(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour VARCHAR, ToHour VARCHAR, Holidays CHAR, Week1OfMonth CHAR, Week2OfMonth CHAR, Week3OfMonth CHAR, Week4OfMonth CHAR, Week5OfMonth CHAR, LF_FADD NUMBER, LF_TOADD NUMBER, RT_TOADD NUMBER, RT_FADD NUMBER, STREETNAME VARCHAR, ZIP_CODE NUMBER, NHOOD VARCHAR);");
 
         // Checks if Table is Null
@@ -83,13 +77,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int OldVersion, int newVersion) {
-
         db.execSQL("DROP TABLE " +TABLE_NAME);
         onCreate(db);
     }
 
     public boolean check_TableIsNull(SQLiteDatabase db,String TABLE_NAME) {
-
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME + "", null);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -106,14 +98,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
     }
 
     public ArrayList<StreetCleaningDataBean> getRequiredAddress(String STREETNAME, Number ZIP_CODE) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-      //  sqLiteDatabase.beginTransaction();
+         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
          ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
-       // String selectQuery = "SELECT * FROM Sfsu_StreetCleaning where STREETNAME='"+STREETNAME+"and ZIP_CODE='"+ZIP_CODE.toString()+"'";
-        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE;
-
-        Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
-        if (c.moveToFirst()) {
+         String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE;
+         Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
+         if (c.moveToFirst()) {
             do {
                 StreetCleaningDataBean streetCleaningDataBean = new StreetCleaningDataBean();
                 streetCleaningDataBean.setWeekDay(c.getString(0));
@@ -139,12 +128,8 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
                 String log = "Weekday: " + streetCleaningDataBean.getWeekDay() + " ,ZipCode: " + streetCleaningDataBean.getZIP_CODE() + " ,STREETNAME: " + streetCleaningDataBean.getSTREETNAME();
                 // Writing Retrieved data to log
                 Log.d("Data: ", log);
-
             } while (c.moveToNext());
-            //c.close();
-           // sqLiteDatabase.endTransaction();
         }
         return getAddress;
     }
-
 }
