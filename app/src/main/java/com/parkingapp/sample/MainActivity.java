@@ -268,7 +268,9 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     }
 
 
-    // update the position every time marker is dragged or position is moved on Map..
+    // update the position every time
+    // marker is dragged or position is moved on Map.
+
     private void updateMarkerPosition(LatLng latLng) {
 
         //Log.d("DEMO=====>", latLng.toString());
@@ -300,6 +302,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
             setInformation(sf.toString());
 
             mMap.clear();
+
 
             if (count == 1) {
                 sf.append("Parking not found");
