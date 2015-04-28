@@ -10,6 +10,7 @@ package com.parkingapp.sample;
  */
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Criteria;
 import android.content.ContextWrapper;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.database.DBConnectionHandler;
+import com.parkingapp.database.StreetCleaningDataBean;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.SFParkBean;
 
@@ -72,11 +74,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
         // setup default location onMap load event
         Criteria criteria = new Criteria();
-
-        // Use this for database connection
-        // ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
-        // DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
-        // dbConnectionHandler.createDB(contextWrapper);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
@@ -122,6 +119,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
+
             @Override
             public void onMyLocationChange(Location myLocation) {
 
@@ -132,7 +130,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
-                    mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.773972,-122.431297) , 14.0f) );
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.773972, -122.431297), 14.0f));
                 }
             }
         });
@@ -218,6 +216,15 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+
+                // Use this for database connection
+                ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+                DBConnectionHandler dbConnectionHandler=new DBConnectionHandler(contextWrapper);
+                SQLiteDatabase sqLiteDatabase=dbConnectionHandler.getWritableDatabase();
+                dbConnectionHandler.onCreate(sqLiteDatabase);
+                dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
+
+
                 Geocoder geocoder = new Geocoder(getApplicationContext());
                 geocoder.isPresent();
                 String addressText;
@@ -364,10 +371,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
-
-
-
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
