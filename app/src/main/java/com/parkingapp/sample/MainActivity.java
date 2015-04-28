@@ -9,7 +9,11 @@ package com.parkingapp.sample;
  *          implemented Clear Marker button so user can clear all markers on map
  */
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Criteria;
 import android.content.ContextWrapper;
@@ -24,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pooja.sfparksample.R;
 import com.google.android.gms.maps.CameraUpdate;
@@ -50,7 +55,7 @@ import java.util.zip.GZIPInputStream;
 
 public class MainActivity extends ActionBarActivity implements LocationListener {
 
-    private GoogleMap mMap;
+    private  static GoogleMap mMap;
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 800;
@@ -289,6 +294,13 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         if(id== R.id.action_layers){
             return true;
         }
+        if(id == R.id.action_clearMarkers){
+            //calls a dialog box
+            DialogFragment myFragment = new ClearMarkerDialog();
+            	            myFragment.show(getFragmentManager(), "theDialog");
+            return true;
+
+        }
         return super.onOptionsItemSelected(item);
 
     }
@@ -317,12 +329,48 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
     }
 
     /**
-     * This method will clear markers on map when user clicks the clear Markers button on the screen
-     * @param view
+     * This is an inner class used to created a dialog fragment when users
+     * click the Clear Markers Tab in the action overflow
      */
-    public void onClick_clearMarker(View view) {
-        mMap.clear();
+    public static  class ClearMarkerDialog extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder theDialog = new AlertDialog.Builder(getActivity());
+            theDialog.setTitle("Clear Markers");
+            theDialog.setMessage("Are you sure you would like to clear all markers on map?");
+            // Markers will be cleared if user clicks YES and a toast will appear notifying
+            //the the user
+            theDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                mMap.clear();
+                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //if user clicks NO, a toast will appear telling user that the clear
+            //function has been canceled
+            theDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+
+
+
+            return theDialog.create();
+
+        }
+
+
     }
+
+
 
     // getter and setter for Information. In order to access it globally.
     public void setInformation(String information) {

@@ -12,11 +12,13 @@
                 <group android:checkableBehavior="single">
                     <item android:id="@+id/menu_2_choice_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
                     <item android:id="@+id/menu_2_choice_2" android:title="@string/satellite"  app:showAsAction="never"  />
-                    <item android:id="@+id/menu_2_choice_3" android:title="@string/terrain"  app:showAsAction="never"  />
+                    <item android:id="@+id/menu_2_choice_3" android:title="@string/terrain"  app:showAsAction="never"
+                        />
                 </group>
             </menu>
         </item>
-
+    <item android:id="@+id/action_clearMarkers" android:title="Clear Markers"
+        android:orderInCategory="100" app:showAsAction="never"/>
     <item
         android:id="@+id/search_icon"
         android:icon="@drawable/ic_action_search"
