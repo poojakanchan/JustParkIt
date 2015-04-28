@@ -294,6 +294,18 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         if(id== R.id.action_layers){
             return true;
         }
+        //when user clicks layers-> Normal, Map type will changed to normal
+        if(id==R.id.menu_2_choice_1){
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+        //when user clicks layers-> Satellite, Map type will changed to satellite
+        if(id==R.id.menu_2_choice_2){
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+        //when user clicks layers-> Terrain, Map type will changed to Terrain
+        if(id==R.id.menu_2_choice_3){
+            mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        }
         if(id == R.id.action_clearMarkers){
             //calls a dialog box
             DialogFragment myFragment = new ClearMarkerDialog();
