@@ -46,6 +46,7 @@ import org.apache.http.entity.HttpEntityWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -229,6 +230,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 geocoder.isPresent();
                 String addressText;
                 List<Address> matches = null;
+                ArrayList<StreetCleaningDataBean> StreetCleanAddress = new ArrayList<>();
                 try {
                     matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                 } catch (IOException e) {
@@ -239,7 +241,37 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     addressText = String.format("%s,\n%s\n%s",
                             address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
                             address.getLocality(), address.getPostalCode());
+                    int postalCode = Integer.valueOf(address.getPostalCode());
                     String title = getString(R.string.street_cleaning_info);
+
+                    //StreetCleanAddress = dbConnectionHandler.getRequiredAddress(address.getAddressLine(0),postalCode);
+                   /* StreetCleanAddress = dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
+                    String rangeAddress = "";
+                    String dayofWeek = "";
+                    String rangeTime = "";*/
+                    /*if(StreetCleanAddress.get(0).getRightLeft().equals("R")){
+                        rangeAddress = String.valueOf(StreetCleanAddress.get(0).getRT_FADD()) + "-" + String.valueOf(StreetCleanAddress.get(0).getRT_TOADD()) + " " + StreetCleanAddress.get(0).getSTREETNAME();
+                    }
+                    if(StreetCleanAddress.get(0).getRightLeft().equals("L")){
+                        rangeAddress = String.valueOf(StreetCleanAddress.get(0).getLF_FADD()) + "-" + String.valueOf(StreetCleanAddress.get(0).getLF_TOADD()) + " " + StreetCleanAddress.get(0).getSTREETNAME();
+                    }
+                    dayofWeek = StreetCleanAddress.get(0).getWeekDay() ;
+                    if(StreetCleanAddress.get(0).getWeek1OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 1"; }
+                    if(StreetCleanAddress.get(0).getWeek2OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 2"; }
+                    if(StreetCleanAddress.get(0).getWeek3OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 3"; }
+                    if(StreetCleanAddress.get(0).getWeek4OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 4"; }
+                    if(StreetCleanAddress.get(0).getWeek5OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 5"; }
+                    if(StreetCleanAddress.get(0).getHolidays().equals("No")){ dayofWeek = dayofWeek + ", No cleaning on holidays"; }
+
+                    rangeTime = StreetCleanAddress.get(0).getFromHour() + "-" + StreetCleanAddress.get(0).getToHour();
+                    String log = "Weekday: " + StreetCleanAddress.get(0).getWeekDay() + ", STREETNAME: " + StreetCleanAddress.get(0).getSTREETNAME() + ", ZipCode: " + StreetCleanAddress.get(0).getZIP_CODE() ;
+
+                    // Writing Retrieved data to log
+                    Log.d("Data: ", log);
+                    Log.d("Range of addresses: ", rangeAddress);
+                    Log.d("Day of week: ", dayofWeek);
+                    Log.d("Time range: ", rangeTime);*/
+
                     setStreetCleaningInformation(addressText);
                     addMarker(latLng, title);
                 }
