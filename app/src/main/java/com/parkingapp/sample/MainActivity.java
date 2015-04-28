@@ -25,7 +25,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -272,9 +274,10 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         // Inflate the menu; this adds items to the action bar if it is present.
 
 
-
+        MenuInflater inflater= getMenuInflater();
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
@@ -286,25 +289,25 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        switch (id) {
-            case R.id.action_settings:
-                openSearch();
-            return true;
-        }
-        if(id== R.id.action_layers){
-            return true;
-        }
+
         //when user clicks layers-> Normal, Map type will changed to normal
         if(id==R.id.menu_2_choice_1){
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            return true;
         }
         //when user clicks layers-> Satellite, Map type will changed to satellite
         if(id==R.id.menu_2_choice_2){
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            return true;
         }
         //when user clicks layers-> Terrain, Map type will changed to Terrain
         if(id==R.id.menu_2_choice_3){
             mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+            return true;
+        }
+        if(id==R.id.menu_2_choice_4){
+            mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            return true;
         }
         if(id == R.id.action_clearMarkers){
             //calls a dialog box
@@ -317,8 +320,6 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
 
     }
 
-    private void openSearch() {
-    }
 
     @Override
     public void onLocationChanged(Location location) {

@@ -11,6 +11,8 @@
     <string name="normal">Normal</string>
     <string name="satellite">Satellite</string>
     <string name="terrain">Terrain</string>
-
-
+    <string name="hybrid">Hybrid</string>
+    <string name="clear">Clear Markers</string>
+    <string name="favorite">Add to Favorites</string>
+    <string name="help">Help</string>
 </resources>
