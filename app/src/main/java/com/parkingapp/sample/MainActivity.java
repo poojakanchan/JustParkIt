@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
     private static final float MIN_DISTANCE = 800;
     private String information;
     private String streetCleaningInformation;
+    MarkerOptions marker;
 
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -87,6 +89,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         LatLng coordinate = new LatLng(lat, lng);
         CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(37.773972,-122.431297));
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(12);
+
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
@@ -136,6 +139,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
+
+
+                // call the updateMarkerPosition every time the lat-lng is updated.
+                updateMarkerPosition(latLng);
+
+
+
+                /*
                 SFParkHandler sfParkHandler = new SFParkHandler();
                 String latitude = String.valueOf(latLng.latitude);
                 String longitude = String.valueOf(latLng.longitude);
@@ -154,7 +165,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     for (SFParkBean bean : response) {
 
                         sf.append(" " + count + " : " + bean.getName() + "\n");
-                        //Log.d("DEMO=====>", sf.toString());
                         count++;
                         if(count == 9){
                             break;
@@ -171,14 +181,19 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     }
 
                     // set the Marker options.
-                    mMap.addMarker(new MarkerOptions()
+                    marker = new MarkerOptions()
                             .position(latLng)
                             .title("Parking spots")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                            .draggable(true);
 
-                    //.snippet("1: ABC \n" + "2: XYZ")
+                    // add marker to Map
+                    mMap.addMarker(marker).showInfoWindow();
+                    marker.isDraggable();
+
 
                     // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
+
                     mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                         @Override
                         public View getInfoWindow(Marker marker) {
@@ -196,15 +211,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                             return customView;
                         }
                     });
-
-                }
-                /*
-                mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("Geographical Coordinates")
-                        .snippet("LAT: " + latLng.latitude + " LNG: " + latLng.longitude + ));
-                */
-
+                }*/
             }
         });
 
@@ -231,6 +238,99 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 }
             }
         });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                // send the latlng to updateMarkerPosition().
+                updateMarkerPosition(marker.getPosition());
+            }
+        });
+    }
+
+
+    // update the position every time marker is dragged or position is moved on Map..
+    private void updateMarkerPosition(LatLng latLng) {
+
+        //Log.d("DEMO=====>", latLng.toString());
+        SFParkHandler sfParkHandler = new SFParkHandler();
+        String latitude = String.valueOf(latLng.latitude);
+        String longitude = String.valueOf(latLng.longitude);
+        String radius = "0.25";
+
+        List<SFParkBean> response = null;
+
+        try {
+            response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+        } catch (ParkingAppException e) {
+
+        }
+        if (response != null) {
+            StringBuilder sf = new StringBuilder();
+            int count = 1;
+            for (SFParkBean bean : response) {
+
+                sf.append(" " + count + " : " + bean.getName() + "\n");
+                //Log.d("DEMO=====>", sf.toString());
+                count++;
+                if (count == 9) {
+                    break;
+                }
+            }
+            // set the information using Setter.
+            setInformation(sf.toString());
+
+            mMap.clear();
+
+            if (count == 1) {
+                sf.append("Parking not found");
+                setInformation(sf.toString());
+            }
+
+            // set the Marker options.
+            marker = new MarkerOptions()
+                    .position(latLng)
+//                    .title("Parking spots")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .draggable(true);
+
+            // add marker to Map
+            mMap.addMarker(marker).showInfoWindow();
+            marker.isDraggable();
+
+
+            // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
+            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    // Define a customView to attach it onClick of marker.
+                    View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                    // inflate the customView layout with TextView.
+                    TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                    // get the information.
+                    tvInformation.setText(getInformation());
+                    return customView;
+                }
+            });
+
+        }
     }
 
     private void addMarker(LatLng latLng, String title) {
