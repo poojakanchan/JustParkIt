@@ -33,6 +33,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pooja.sfparksample.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,23 +58,48 @@ import org.apache.http.entity.HttpEntityWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 
-public class MainActivity extends ActionBarActivity implements LocationListener {
+public class MainActivity extends ActionBarActivity implements
+        LocationListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
+    private static final String TAG = "LocationActivity";
+    private static final long INTERVAL = 1000 * 10;
+    private static final long FASTEST_INTERVAL = 1000 * 5;
     private  static GoogleMap mMap;
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 800;
     private String information;
     private String streetCleaningInformation;
+    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
+    LocationRequest mLocationRequest;
+    GoogleApiClient mGoogleApiClient;
+    Location mCurrentLocation;
+    String mLastUpdateTime;
+
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
 
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
-
-
+        createLocationRequest();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         setContentView(R.layout.activity_map);
 
@@ -75,6 +107,12 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
 
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         // setup default location onMap load event
         Criteria criteria = new Criteria();
@@ -102,7 +140,19 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
+    }
+
+
+    @Override
     protected void onResume() {
+        super.onResume();
         super.onResume();
         setUpMapIfNeeded();
     }
@@ -124,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
 
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
@@ -133,7 +184,6 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
                 if (mLocation == null) {
                     mLocation = myLocation;
                     mMap.clear();
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())).title("You are here"));
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
@@ -315,8 +365,29 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
             DialogFragment myFragment = new ClearMarkerDialog();
             	            myFragment.show(getFragmentManager(), "theDialog");
             return true;
-
         }
+        // getLastKnownLocation wasn't giving me accurate coordinates.
+        // The "new" way to get accurate coordinates is by using the FusedLocationApi.
+        if(id == R.id.action_gps){
+            if (null != mCurrentLocation) {
+                CameraUpdate currentLocation = CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                mMap.animateCamera(currentLocation, 800, null);
+            } else {
+                Toast.makeText(getApplicationContext(), "Current loc is null", Toast.LENGTH_LONG).show();
+
+            /*
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            CameraUpdate currentLocation = CameraUpdateFactory.newLatLng(new LatLng(lat, lng));
+            mMap.animateCamera(currentLocation, 800, null);
+            Toast.makeText(getApplicationContext(),
+                    "Current location\nLat: " + lat + "\nLng: " + lng,
+                    Toast.LENGTH_LONG).show();
+            */
+            }
+        }
+
         return super.onOptionsItemSelected(item);
 
     }
@@ -324,7 +395,8 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
 
     @Override
     public void onLocationChanged(Location location) {
-
+        mCurrentLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
     }
 
     @Override
@@ -339,6 +411,25 @@ public class MainActivity extends ActionBarActivity implements LocationListener 
 
     @Override
     public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        startLocationUpdates();
+    }
+
+    protected void startLocationUpdates() {
+        PendingResult<Status> pendingResult = LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 

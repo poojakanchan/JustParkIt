@@ -12,7 +12,8 @@
     <string name="satellite">Satellite</string>
     <string name="terrain">Terrain</string>
     <string name="hybrid">Hybrid</string>
-    <string name="clear">Clear Markers</string>
+    <string name="action_clear">Clear Markers</string>
     <string name="favorite">Add to Favorites</string>
-    <string name="help">Help</string>
+    <string name="action_gps">Go to Current Location</string>
+    <string name="action_help">Help</string>
 </resources>

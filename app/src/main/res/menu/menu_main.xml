@@ -4,8 +4,10 @@
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="4" app:showAsAction="never"
         />
-    <item android:id="@+id/action_layers" android:title="Layers"
-        android:orderInCategory="2" app:showAsAction="never">
+    <item android:id="@+id/action_layers"
+        android:title="Layers"
+        android:orderInCategory="2"
+        app:showAsAction="never">
 
 
             <menu>
@@ -19,15 +21,27 @@
                 </group>
             </menu>
         </item>
-    <item android:id="@+id/action_clearMarkers" android:title="Clear Markers"
-        android:orderInCategory="1" app:showAsAction="never"/>
-    <item android:id="@+id/action_help" android:title="Help"
-        android:orderInCategory="3" app:showAsAction="never"/>
+    <item android:id="@+id/action_clearMarkers"
+        android:title="@string/action_clear"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_help"
+        android:title="@string/action_help"
+        android:orderInCategory="3"
+        app:showAsAction="never"/>
+
     <item
         android:id="@+id/search_icon"
         android:icon="@drawable/ic_action_search"
-          android:title="@string/search"
-    app:showAsAction="always|collapseActionView"
-    app:actionViewClass="android.support.v7.widget.SearchView" />
+        android:title="@string/search"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+    <item
+        android:id="@+id/action_gps"
+        android:icon="@drawable/ic_action_gps"
+        android:title="@string/action_gps"
+        app:showAsAction="always" />
 
 </menu>
