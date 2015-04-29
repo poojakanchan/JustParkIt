@@ -223,7 +223,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 DBConnectionHandler dbConnectionHandler=new DBConnectionHandler(contextWrapper);
                 SQLiteDatabase sqLiteDatabase=dbConnectionHandler.getWritableDatabase();
                 dbConnectionHandler.onCreate(sqLiteDatabase);
-                dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
+                //dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
 
 
                 Geocoder geocoder = new Geocoder(getApplicationContext());
@@ -241,38 +241,75 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                     addressText = String.format("%s,\n%s\n%s",
                             address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
                             address.getLocality(), address.getPostalCode());
-                    int postalCode = Integer.valueOf(address.getPostalCode());
+                    setStreetCleaningInformation(addressText);
                     String title = getString(R.string.street_cleaning_info);
 
-                    //StreetCleanAddress = dbConnectionHandler.getRequiredAddress(address.getAddressLine(0),postalCode);
-                   /* StreetCleanAddress = dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
-                    String rangeAddress = "";
-                    String dayofWeek = "";
-                    String rangeTime = "";*/
-                    /*if(StreetCleanAddress.get(0).getRightLeft().equals("R")){
-                        rangeAddress = String.valueOf(StreetCleanAddress.get(0).getRT_FADD()) + "-" + String.valueOf(StreetCleanAddress.get(0).getRT_TOADD()) + " " + StreetCleanAddress.get(0).getSTREETNAME();
+                    int postalCode = Integer.valueOf(address.getPostalCode());
+                    String streetParm = address.getThoroughfare().toUpperCase();
+                    String sub[] = address.getSubThoroughfare().split("-");
+                    int substreetParm = Integer.valueOf(sub[0]);
+
+                    Log.d("substreetParm", address.getSubThoroughfare());
+                    Log.d("substreetParm", sub[0]);
+                    Log.d("addressParm: ", streetParm);
+                    Log.d("Pincode:", address.getPostalCode());
+
+                    StreetCleanAddress = dbConnectionHandler.getRequiredAddress(substreetParm, streetParm,postalCode);
+
+                    if (StreetCleanAddress != null) {
+                        StringBuilder sc = new StringBuilder();
+                        int count = 1;
+                        for (StreetCleaningDataBean bean : StreetCleanAddress) {
+
+                            if (bean.getRightLeft().equals("R")) {
+                                sc.append(String.valueOf(bean.getRT_FADD()) + "-" + String.valueOf(bean.getRT_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                            }
+                            if (bean.getRightLeft().equals("L")) {
+                                sc.append(String.valueOf(bean.getLF_FADD()) + "-" + String.valueOf(bean.getLF_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                            }
+
+                            sc.append(bean.getWeekDay()+ " Weeks:" );
+                            if (bean.getWeek1OfMonth().equals("Y")) {
+                                sc.append(" 1");
+                            }
+                            if (bean.getWeek2OfMonth().equals("Y")) {
+                                sc.append(" 2");
+                            }
+                            if (bean.getWeek3OfMonth().equals("Y")) {
+                                sc.append(" 3");
+                            }
+                            if (bean.getWeek4OfMonth().equals("Y")) {
+                                sc.append(" 4");
+                            }
+                            if (bean.getWeek5OfMonth().equals("Y")) {
+                                sc.append(" 5");
+                            }
+                            sc.append(" \n");
+
+                            sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
+                            if (bean.getHolidays().equals("N")) {
+                                sc.append("No cleaning on holidays \n");
+                            }
+
+                            count++;
+                            if (count == 9) {
+                                break;
+                            }
+                        }
+                        // set the information using Setter.
+                        setStreetCleaningInformation(sc.toString());
+
+                        mMap.clear();
+
+                        if (count == 1) {
+                            sc.append("Street cleaning info not found");
+                            setStreetCleaningInformation(sc.toString());
+                        }
+                     //String log = "Weekday: " + bean.getWeekDay() + ", STREETNAME: " + bean.getSTREETNAME() + ", ZipCode: " + bean.getZIP_CODE() ;
+
+                     // Writing Retrieved data to log
+                     Log.d("Data: ", sc.toString());
                     }
-                    if(StreetCleanAddress.get(0).getRightLeft().equals("L")){
-                        rangeAddress = String.valueOf(StreetCleanAddress.get(0).getLF_FADD()) + "-" + String.valueOf(StreetCleanAddress.get(0).getLF_TOADD()) + " " + StreetCleanAddress.get(0).getSTREETNAME();
-                    }
-                    dayofWeek = StreetCleanAddress.get(0).getWeekDay() ;
-                    if(StreetCleanAddress.get(0).getWeek1OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 1"; }
-                    if(StreetCleanAddress.get(0).getWeek2OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 2"; }
-                    if(StreetCleanAddress.get(0).getWeek3OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 3"; }
-                    if(StreetCleanAddress.get(0).getWeek4OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 4"; }
-                    if(StreetCleanAddress.get(0).getWeek5OfMonth().equals("Yes")){ dayofWeek = dayofWeek + " 5"; }
-                    if(StreetCleanAddress.get(0).getHolidays().equals("No")){ dayofWeek = dayofWeek + ", No cleaning on holidays"; }
-
-                    rangeTime = StreetCleanAddress.get(0).getFromHour() + "-" + StreetCleanAddress.get(0).getToHour();
-                    String log = "Weekday: " + StreetCleanAddress.get(0).getWeekDay() + ", STREETNAME: " + StreetCleanAddress.get(0).getSTREETNAME() + ", ZipCode: " + StreetCleanAddress.get(0).getZIP_CODE() ;
-
-                    // Writing Retrieved data to log
-                    Log.d("Data: ", log);
-                    Log.d("Range of addresses: ", rangeAddress);
-                    Log.d("Day of week: ", dayofWeek);
-                    Log.d("Time range: ", rangeTime);*/
-
-                    setStreetCleaningInformation(addressText);
                     addMarker(latLng, title);
                 }
             }

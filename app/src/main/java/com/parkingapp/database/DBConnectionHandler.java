@@ -97,11 +97,13 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         return false;
     }
 
-    public ArrayList<StreetCleaningDataBean> getRequiredAddress(String STREETNAME, Number ZIP_CODE) {
+    public ArrayList<StreetCleaningDataBean> getRequiredAddress(Number SUBSTREET, String STREETNAME, Number ZIP_CODE) {
          SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
          ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
-         String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE;
-         Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
+         String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
+                 +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
+
+        Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
          if (c.moveToFirst()) {
             do {
                 StreetCleaningDataBean streetCleaningDataBean = new StreetCleaningDataBean();
