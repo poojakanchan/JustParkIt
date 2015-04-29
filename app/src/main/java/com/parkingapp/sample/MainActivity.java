@@ -344,20 +344,24 @@ public class MainActivity extends ActionBarActivity implements
         //when user clicks layers-> Normal, Map type will changed to normal
         if(id==R.id.menu_2_choice_1){
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            Toast.makeText(getApplicationContext(), "Normal View", Toast.LENGTH_LONG).show();
             return true;
         }
         //when user clicks layers-> Satellite, Map type will changed to satellite
         if(id==R.id.menu_2_choice_2){
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            Toast.makeText(getApplicationContext(), "Satellite View", Toast.LENGTH_LONG).show();
             return true;
         }
         //when user clicks layers-> Terrain, Map type will changed to Terrain
         if(id==R.id.menu_2_choice_3){
             mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+            Toast.makeText(getApplicationContext(), "Terrain View", Toast.LENGTH_LONG).show();
             return true;
         }
         if(id==R.id.menu_2_choice_4){
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            Toast.makeText(getApplicationContext(), "Hybrid View", Toast.LENGTH_LONG).show();
             return true;
         }
         //dialog fragment will appear when user clicks on Clear Markers tab in action overflow
@@ -388,6 +392,19 @@ public class MainActivity extends ActionBarActivity implements
             */
             }
         }
+        if(id==R.id.help_choice_1){
+            DialogFragment myFragment = new StreetCleaningHelp();
+            myFragment.show(getFragmentManager(), "helpDialog_1");
+            return true;
+
+        }
+        if(id==R.id.help_choice_2){
+            DialogFragment myFragment = new ParkingInfoHelp();
+            myFragment.show(getFragmentManager(), "helpDialog_2");
+            return true;
+
+        }
+
 
         return super.onOptionsItemSelected(item);
 
@@ -475,7 +492,29 @@ public class MainActivity extends ActionBarActivity implements
 
 
     }
+    public static class StreetCleaningHelp extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
 
+            AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity());
+            helpDialog_1.setTitle("Street Cleaning Help");
+            helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n-Tap on the yellow marker to view Street Cleaning Information");
+
+
+            return helpDialog_1.create();
+    }}
+
+    public static class ParkingInfoHelp extends DialogFragment{
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder helpDialog_2 = new AlertDialog.Builder(getActivity());
+            helpDialog_2.setTitle("Parking Information Help");
+            helpDialog_2.setMessage("-Tap anywhere on the map to place Marker\n-Tap on the yellow marker to view Street Cleaning Information");
+
+
+            return helpDialog_2.create();
+        }}
 
 
     // getter and setter for Information. In order to access it globally.
@@ -487,13 +526,15 @@ public class MainActivity extends ActionBarActivity implements
         return information;
     }
 
+    public void setStreetCleaningInformation(String streetCleaningInformation) {
+            this.streetCleaningInformation = streetCleaningInformation;
+        }
+
     public String getStreetCleaningInformation() {
         return streetCleaningInformation;
     }
 
-    public void setStreetCleaningInformation(String streetCleaningInformation) {
-        this.streetCleaningInformation = streetCleaningInformation;
-    }
+
 
     private static class InflatingEntity extends HttpEntityWrapper {
         public InflatingEntity(HttpEntity wrapped) {
