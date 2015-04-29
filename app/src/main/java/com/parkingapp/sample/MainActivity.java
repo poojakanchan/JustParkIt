@@ -146,7 +146,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
+        // commenting this out for now. causes force close since we are still relying on the old LocationListener
+        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
 
