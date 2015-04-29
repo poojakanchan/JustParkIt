@@ -359,6 +359,7 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(getApplicationContext(), "Terrain View", Toast.LENGTH_LONG).show();
             return true;
         }
+        //when user clicks layers-> Terrain, Map type will changed to Terrain
         if(id==R.id.menu_2_choice_4){
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             Toast.makeText(getApplicationContext(), "Hybrid View", Toast.LENGTH_LONG).show();
@@ -392,12 +393,15 @@ public class MainActivity extends ActionBarActivity implements
             */
             }
         }
+        //when user clicks Help-> Street Cleaning Help, help information for Street Cleaning Data will be displayed
         if(id==R.id.help_choice_1){
             DialogFragment myFragment = new StreetCleaningHelp();
             myFragment.show(getFragmentManager(), "helpDialog_1");
             return true;
 
         }
+        //when user clicks Help-> Parking Information Help, help information for Parking Information Data will be displayed
+
         if(id==R.id.help_choice_2){
             DialogFragment myFragment = new ParkingInfoHelp();
             myFragment.show(getFragmentManager(), "helpDialog_2");
@@ -492,9 +496,14 @@ public class MainActivity extends ActionBarActivity implements
 
 
     }
+    /**
+     * This is an inner class used to created a dialog fragment when users
+     * click the Street Cleaning Help item under the Help menu  in the action overflow
+     */
     public static class StreetCleaningHelp extends DialogFragment{
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
 
             AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity());
             helpDialog_1.setTitle("Street Cleaning Help");
@@ -502,11 +511,17 @@ public class MainActivity extends ActionBarActivity implements
 
 
             return helpDialog_1.create();
-    }}
+        }
+    }
 
+    /**
+     * This is an inner class used to created a dialog fragment when users
+     * click the Parking Information Help item under the Help menu  in the action overflow
+     */
     public static class ParkingInfoHelp extends DialogFragment{
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
 
             AlertDialog.Builder helpDialog_2 = new AlertDialog.Builder(getActivity());
             helpDialog_2.setTitle("Parking Information Help");
@@ -514,7 +529,8 @@ public class MainActivity extends ActionBarActivity implements
 
 
             return helpDialog_2.create();
-        }}
+        }
+    }
 
 
     // getter and setter for Information. In order to access it globally.
