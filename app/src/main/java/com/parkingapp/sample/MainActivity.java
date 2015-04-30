@@ -22,12 +22,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +50,8 @@ import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.database.DBConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.SFParkBean;
+import com.parkingapp.database.StreetCleaningDataBean;
+import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
@@ -62,7 +62,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class MainActivity extends ActionBarActivity implements
         LocationListener,
@@ -83,7 +84,7 @@ public class MainActivity extends ActionBarActivity implements
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
-
+    MarkerOptions marker;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -117,14 +118,8 @@ public class MainActivity extends ActionBarActivity implements
         // setup default location onMap load event
         Criteria criteria = new Criteria();
 
-        // Use this for database connection
-        // ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
-        // DBConnectionHandler dbConnectionHandler=new DBConnectionHandler();
-        // dbConnectionHandler.createDB(contextWrapper);
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-
 
         String provider = locationManager.getBestProvider(criteria, false);
         Location location = locationManager.getLastKnownLocation(provider);
@@ -179,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
+
             @Override
             public void onMyLocationChange(Location myLocation) {
 
@@ -188,108 +184,205 @@ public class MainActivity extends ActionBarActivity implements
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
                     mMap.animateCamera(update);
-                    mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(37.721897,-122.47820939999997) , 14.0f) );
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.721897, -122.47820939999997), 14.0f));
                 }
             }
         });
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                SFParkHandler sfParkHandler = new SFParkHandler();
-                String latitude = String.valueOf(latLng.latitude);
-                String longitude = String.valueOf(latLng.longitude);
-                String radius = "0.25";
-
-                List<SFParkBean> response = null;
-
-                try {
-                    response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
-                } catch (ParkingAppException e) {
-
-                }
-                if (response != null) {
-                    StringBuilder sf = new StringBuilder();
-                    int count = 1;
-                    for (SFParkBean bean : response) {
-
-                        sf.append(" " + count + " : " + bean.getName() + "\n");
-                        //Log.d("DEMO=====>", sf.toString());
-                        count++;
-                        if(count == 9){
-                            break;
-                        }
-                    }
-                    // set the information using Setter.
-                    setInformation(sf.toString());
-
-                    mMap.clear();
-
-                    if (count == 1) {
-                        sf.append("Parking not found");
-                        setInformation(sf.toString());
-                    }
-
-                    // set the Marker options.
-                    mMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title("Parking spots")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-
-                    //.snippet("1: ABC \n" + "2: XYZ")
-
-                    // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
-                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                        @Override
-                        public View getInfoWindow(Marker marker) {
-                            return null;
-                        }
-
-                        @Override
-                        public View getInfoContents(Marker marker) {
-                            // Define a customView to attach it onClick of marker.
-                            View customView = getLayoutInflater().inflate(R.layout.marker, null);
-                            // inflate the customView layout with TextView.
-                            TextView tvInformation = (TextView) customView.findViewById(R.id.information);
-                            // get the information.
-                            tvInformation.setText(getInformation());
-                            return customView;
-                        }
-                    });
-
-                }
-                /*
-                mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("Geographical Coordinates")
-                        .snippet("LAT: " + latLng.latitude + " LNG: " + latLng.longitude + ));
-                */
-
+                updateMarkerPosition(latLng);
             }
         });
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+
+                // Use this for database connection
+                ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+                DBConnectionHandler dbConnectionHandler = new DBConnectionHandler(contextWrapper);
+                SQLiteDatabase sqLiteDatabase = dbConnectionHandler.getWritableDatabase();
+                dbConnectionHandler.onCreate(sqLiteDatabase);
+                //dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
+
+
                 Geocoder geocoder = new Geocoder(getApplicationContext());
                 geocoder.isPresent();
                 String addressText;
                 List<Address> matches = null;
+                ArrayList<StreetCleaningDataBean> streetCleanAddress = new ArrayList<>();
                 try {
                     matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                setStreetCleaningInformation("Street cleaning info not found");
                 if (matches != null && matches.size() > 0) {
                     Address address = matches.get(0);
-                    addressText = String.format("%s,\n%s\n%s",
-                            address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
-                            address.getLocality(), address.getPostalCode());
-                    String title = getString(R.string.street_cleaning_info);
-                    setStreetCleaningInformation(addressText);
-                    addMarker(latLng, title);
+                    //addressText = String.format("%s,\n%s\n%s",
+                    //        address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
+                    //        address.getLocality(), address.getPostalCode());
+
+                    if (address.getSubThoroughfare() != null
+                            && address.getThoroughfare() != null
+                            && address.getPostalCode() != null) {
+
+                        String sub[] = address.getSubThoroughfare().split("-");
+                        int substreetParm = Integer.valueOf(sub[0]);
+                        String streetParm = address.getThoroughfare().toUpperCase();
+                        int postalCode = Integer.valueOf(address.getPostalCode());
+
+                        Log.d("substreetParm: ", address.getSubThoroughfare());
+                        Log.d("substreetParm[0]: ", sub[0]);
+                        Log.d("addressParm: ", streetParm);
+                        Log.d("Pincode: ", address.getPostalCode());
+
+                        streetCleanAddress = dbConnectionHandler.getRequiredAddress(substreetParm, streetParm, postalCode);
+
+                        if (streetCleanAddress != null && streetCleanAddress.size() > 0) {
+
+                            StringBuilder sc = new StringBuilder();
+                            int count = 1;
+                            for (StreetCleaningDataBean bean : streetCleanAddress) {
+
+                                if (bean.getRightLeft().equals("R")) {
+                                    sc.append(String.valueOf(bean.getRT_FADD()) + "-" + String.valueOf(bean.getRT_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                                }
+                                if (bean.getRightLeft().equals("L")) {
+                                    sc.append(String.valueOf(bean.getLF_FADD()) + "-" + String.valueOf(bean.getLF_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                                }
+
+                                sc.append(bean.getWeekDay() + " Weeks:");
+                                if (bean.getWeek1OfMonth().equals("Y")) {
+                                    sc.append(" 1");
+                                }
+                                if (bean.getWeek2OfMonth().equals("Y")) {
+                                    sc.append(" 2");
+                                }
+                                if (bean.getWeek3OfMonth().equals("Y")) {
+                                    sc.append(" 3");
+                                }
+                                if (bean.getWeek4OfMonth().equals("Y")) {
+                                    sc.append(" 4");
+                                }
+                                if (bean.getWeek5OfMonth().equals("Y")) {
+                                    sc.append(" 5");
+                                }
+                                sc.append(" \n");
+
+                                sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
+                                if (bean.getHolidays().equals("N")) {
+                                    sc.append("No cleaning on holidays \n");
+                                }
+
+                                count++;
+                                if (count == 9) {
+                                    break;
+                                }
+                            }
+                            // set the information using Setter.
+                            setStreetCleaningInformation(sc.toString());
+
+                            // Writing Retrieved data to log
+                            Log.d("Data: ", sc.toString());
+                        }
+                    }
                 }
+                String title = getString(R.string.street_cleaning_info);
+                addMarker(latLng, title);
             }
         });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                // send the latlng to updateMarkerPosition().
+                updateMarkerPosition(marker.getPosition());
+            }
+        });
+    }
+
+    private void updateMarkerPosition(LatLng latLng) {
+
+        //Log.d("DEMO=====>", latLng.toString());
+        SFParkHandler sfParkHandler = new SFParkHandler();
+        String latitude = String.valueOf(latLng.latitude);
+        String longitude = String.valueOf(latLng.longitude);
+        String radius = "0.25";
+
+        List<SFParkBean> response = null;
+
+        try {
+            response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+        } catch (ParkingAppException e) {
+
+        }
+        if (response != null) {
+            StringBuilder sf = new StringBuilder();
+            int count = 1;
+            for (SFParkBean bean : response) {
+
+                sf.append(" " + count + " : " + bean.getName() + "\n");
+                //Log.d("DEMO=====>", sf.toString());
+                count++;
+                if (count == 9) {
+                    break;
+                }
+            }
+            // set the information using Setter.
+            setInformation(sf.toString());
+
+            mMap.clear();
+
+
+            if (count == 1) {
+                sf.append("Parking not found");
+                setInformation(sf.toString());
+            }
+
+            // set the Marker options.
+            marker = new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .draggable(true);
+
+            // add marker to Map
+            mMap.addMarker(marker).showInfoWindow();
+            marker.isDraggable();
+
+
+            // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
+            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    // Define a customView to attach it onClick of marker.
+                    View customView = getLayoutInflater().inflate(R.layout.marker, null);
+                    // inflate the customView layout with TextView.
+                    TextView tvInformation = (TextView) customView.findViewById(R.id.information);
+                    // get the information.
+                    tvInformation.setText(getInformation());
+                    return customView;
+                }
+            });
+
+        }
     }
 
     private void addMarker(LatLng latLng, String title) {
@@ -323,8 +416,6 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
-
         MenuInflater inflater= getMenuInflater();
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -408,10 +499,7 @@ public class MainActivity extends ActionBarActivity implements
             return true;
 
         }
-
-
         return super.onOptionsItemSelected(item);
-
     }
 
 
@@ -488,13 +576,9 @@ public class MainActivity extends ActionBarActivity implements
                 }
             });
 
-
-
             return theDialog.create();
 
         }
-
-
     }
     /**
      * This is an inner class used to created a dialog fragment when users
