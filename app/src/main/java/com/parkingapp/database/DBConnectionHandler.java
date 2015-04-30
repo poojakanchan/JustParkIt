@@ -92,19 +92,19 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
                 return true;
             }
             cursor.close();
-          }
+        }
         System.out.println("Table is not Null");
         return false;
     }
 
     public ArrayList<StreetCleaningDataBean> getRequiredAddress(Number SUBSTREET, String STREETNAME, Number ZIP_CODE) {
-         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-         ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
-         String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
-                 +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
+        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
+                +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
 
         Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
-         if (c.moveToFirst()) {
+        if (c.moveToFirst()) {
             do {
                 StreetCleaningDataBean streetCleaningDataBean = new StreetCleaningDataBean();
                 streetCleaningDataBean.setWeekDay(c.getString(0));

@@ -2,5 +2,49 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="4" app:showAsAction="never"
+        />
+    <item android:id="@+id/action_layers"
+        android:title="Layers"
+        android:orderInCategory="2"
+        app:showAsAction="never">
+
+
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/menu_2_choice_1" android:title="@string/normal"  app:showAsAction="never" android:checked="true"/>
+                <item android:id="@+id/menu_2_choice_2" android:title="@string/satellite"  app:showAsAction="never"  />
+                <item android:id="@+id/menu_2_choice_3" android:title="@string/terrain"  app:showAsAction="never"
+                    />
+                <item android:id="@+id/menu_2_choice_4" android:title="@string/hybrid"  app:showAsAction="never"
+                    />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/action_clearMarkers"
+        android:title="@string/action_clear"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_help"
+        android:title="@string/action_help"
+        android:orderInCategory="3"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/help_choice_1" android:title="@string/street_cleaning_help"  app:showAsAction="never" android:checked="true"/>
+                <item android:id="@+id/help_choice_2" android:title="@string/parking_info_help"  app:showAsAction="never"  /></group></menu></item>
+    <item
+        android:id="@+id/search_icon"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/search"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+    <item
+        android:id="@+id/action_gps"
+        android:icon="@drawable/ic_action_gps"
+        android:title="@string/action_gps"
+        app:showAsAction="always" />
+
 </menu>
