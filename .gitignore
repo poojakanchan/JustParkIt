@@ -3,5 +3,6 @@
 /.idea
 *.iml
 local.properties
-.DS_Store 
+.DS_Store
+.navigation
 app/src/main/res/values/google_maps_api.xml
