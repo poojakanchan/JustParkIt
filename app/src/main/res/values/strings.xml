@@ -6,4 +6,19 @@
     <string name="location">Location</string>
     <string name="get_data">Get Data</string>
     <string name="street_cleaning_info">Street Cleaning Info</string>
+    <string name="search">Search</string>
+    <string name="Layers">Layers</string>
+    <string name="normal">Normal</string>
+    <string name="satellite">Satellite</string>
+    <string name="terrain">Terrain</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="action_clear">Clear Markers</string>
+    <string name="action_gps">Go to Current Location</string>
+    <string name="action_help">Help</string>
+    <string name="street_cleaning_help">Street Cleaning Help</string>
+    <string name="parking_info_help">Parking Information Help</string>
+    <string name="action_favorites">Add To Favorites</string>
+    <string name="action_view_favorites">View Favorites</string>
+    <string name="title_activity_display_favorite">DisplayFavorite</string>
+
 </resources>
