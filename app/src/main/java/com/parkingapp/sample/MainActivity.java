@@ -7,6 +7,8 @@ package com.parkingapp.sample;
  *          added personal icons
  *          implemented pooja's fix to delete previous marker when new marker is selected
  *          implemented Clear Marker button so user can clear all markers on map
+ *          Fixed radio buttons on layers and help menu in action overflow so that checked tab corresponds to current state
+ *
  * 2. Pooja K
  * changes: Added a code to handle add to favorites and iew favorites part.
  *          Added a code to check whether street cleaning is currently going on or not and display message accordingly.
@@ -498,24 +500,28 @@ public class MainActivity extends ActionBarActivity implements
         if(id==R.id.menu_2_choice_1){
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             Toast.makeText(getApplicationContext(), "Normal View", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
             return true;
         }
         //when user clicks layers-> Satellite, Map type will changed to satellite
-        if(id==R.id.menu_2_choice_2){
+        else if(id==R.id.menu_2_choice_2){
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
             Toast.makeText(getApplicationContext(), "Satellite View", Toast.LENGTH_LONG).show();
+           item.setChecked(true);
             return true;
         }
         //when user clicks layers-> Terrain, Map type will changed to Terrain
-        if(id==R.id.menu_2_choice_3){
+        else if(id==R.id.menu_2_choice_3){
             mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
             Toast.makeText(getApplicationContext(), "Terrain View", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
             return true;
         }
         //when user clicks layers-> Terrain, Map type will changed to Terrain
-        if(id==R.id.menu_2_choice_4){
+        else if(id==R.id.menu_2_choice_4){
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             Toast.makeText(getApplicationContext(), "Hybrid View", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
             return true;
         }
         //dialog fragment will appear when user clicks on Clear Markers tab in action overflow
@@ -551,6 +557,7 @@ public class MainActivity extends ActionBarActivity implements
         if(id==R.id.help_choice_1){
             DialogFragment myFragment = new StreetCleaningHelp();
             myFragment.show(getFragmentManager(), "helpDialog_1");
+            item.setChecked(true);
             return true;
 
         }
@@ -559,6 +566,7 @@ public class MainActivity extends ActionBarActivity implements
         if(id==R.id.help_choice_2){
             DialogFragment myFragment = new ParkingInfoHelp();
             myFragment.show(getFragmentManager(), "helpDialog_2");
+            item.setChecked(true);
             return true;
 
         }
