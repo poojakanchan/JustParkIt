@@ -114,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
+        SfParkBeanList = new ArrayList<SFParkBean>();
         setContentView(R.layout.activity_map);
         ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
         dbConnectionHandler = DBConnectionHandler.getDBHandler(contextWrapper);
