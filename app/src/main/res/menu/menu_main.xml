@@ -5,17 +5,18 @@
         android:title="@string/action_settings"
         android:orderInCategory="5"
         app:showAsAction="never"
-        />
+        android:theme="@android:style/Animation.Toast"/>
     <item android:id="@+id/action_view_favorites"
         android:title="@string/action_view_favorites"
         android:orderInCategory="4"
         app:showAsAction="never"
-        />
+        android:theme="@android:style/Animation.Toast"/>
 
     <item android:id="@+id/action_layers"
         android:title="Layers"
         android:orderInCategory="2"
-        app:showAsAction="never">
+        app:showAsAction="never"
+        android:theme="@android:style/Animation.Toast">
 
 
         <menu>
@@ -47,7 +48,8 @@
     <item android:id="@+id/action_help"
         android:title="@string/action_help"
         android:orderInCategory="3"
-        app:showAsAction="never">
+        app:showAsAction="never"
+        android:theme="@android:style/Animation.Toast">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/help_choice_1"
@@ -75,7 +77,8 @@
         android:id="@+id/action_favorites"
         android:icon="@drawable/ic_action_favorites"
         android:title="@string/action_favorites"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        android:theme="@android:style/Animation.Toast"/>
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
