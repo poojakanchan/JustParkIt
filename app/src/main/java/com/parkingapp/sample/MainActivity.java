@@ -7,6 +7,9 @@ package com.parkingapp.sample;
  *          added personal icons
  *          implemented pooja's fix to delete previous marker when new marker is selected
  *          implemented Clear Marker button so user can clear all markers on map
+ * 2. Pooja K
+ * changes: Added a code to handle add to favorites and iew favorites part.
+ *          Added a code to check whether street cleaning is currently going on or not and display message accordingly.
  */
 
 import android.app.AlertDialog;
@@ -14,6 +17,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.location.Address;
 import android.location.Criteria;
 import android.content.ContextWrapper;
@@ -51,6 +56,10 @@ import com.parkingapp.database.DBConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.SFParkBean;
 import com.parkingapp.database.StreetCleaningDataBean;
+import com.parkingapp.utility.Constants;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
@@ -59,10 +68,10 @@ import org.apache.http.entity.HttpEntityWrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class MainActivity extends ActionBarActivity implements
@@ -85,6 +94,8 @@ public class MainActivity extends ActionBarActivity implements
     Location mCurrentLocation;
     String mLastUpdateTime;
     MarkerOptions marker;
+    List<SFParkBean> SfParkBeanList = null;
+    DBConnectionHandler dbConnectionHandler;
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -103,7 +114,8 @@ public class MainActivity extends ActionBarActivity implements
                 .build();
 
         setContentView(R.layout.activity_map);
-
+        ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+        dbConnectionHandler = DBConnectionHandler.getDBHandler(contextWrapper);
         setUpMapIfNeeded();
 
         mMap.setMyLocationEnabled(true);
@@ -198,27 +210,19 @@ public class MainActivity extends ActionBarActivity implements
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+                // empty parking location list
+                SfParkBeanList.clear();
 
                 // Use this for database connection
                 ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
-                DBConnectionHandler dbConnectionHandler = new DBConnectionHandler(contextWrapper);
-                SQLiteDatabase sqLiteDatabase = dbConnectionHandler.getWritableDatabase();
-                dbConnectionHandler.onCreate(sqLiteDatabase);
                 //dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
 
 
-                Geocoder geocoder = new Geocoder(getApplicationContext());
-                geocoder.isPresent();
-                String addressText;
-                List<Address> matches = null;
-                ArrayList<StreetCleaningDataBean> streetCleanAddress = new ArrayList<>();
-                try {
-                    matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                boolean found = true;
+                List<StreetCleaningDataBean> streetCleanAddress = new ArrayList<StreetCleaningDataBean>();
                 setStreetCleaningInformation("Street cleaning info not found");
+
+                List<Address> matches = getGeoCoder(latLng);
                 if (matches != null && matches.size() > 0) {
                     Address address = matches.get(0);
                     //addressText = String.format("%s,\n%s\n%s",
@@ -230,63 +234,108 @@ public class MainActivity extends ActionBarActivity implements
                             && address.getPostalCode() != null) {
 
                         String sub[] = address.getSubThoroughfare().split("-");
-                        int substreetParm = Integer.valueOf(sub[0]);
-                        String streetParm = address.getThoroughfare().toUpperCase();
-                        int postalCode = Integer.valueOf(address.getPostalCode());
+                        int substreetParm =0;
+                        String streetParm = null;
+                        int postalCode =0;
+                        if(sub[0] != null) {
+                            try {
+                                substreetParm = Integer.valueOf(sub[0]);
+                                streetParm = address.getThoroughfare().toUpperCase();
+                                postalCode = Integer.valueOf(address.getPostalCode());
+                                Log.d("substreetParm: ", address.getSubThoroughfare());
+                                Log.d("substreetParm[0]: ", sub[0]);
+                                Log.d("addressParm: ", streetParm);
+                                Log.d("Pincode: ", address.getPostalCode());
 
-                        Log.d("substreetParm: ", address.getSubThoroughfare());
-                        Log.d("substreetParm[0]: ", sub[0]);
-                        Log.d("addressParm: ", streetParm);
-                        Log.d("Pincode: ", address.getPostalCode());
+                            } catch (NumberFormatException ne) {
+                                found = false;
+                            }
 
-                        streetCleanAddress = dbConnectionHandler.getRequiredAddress(substreetParm, streetParm, postalCode);
 
-                        if (streetCleanAddress != null && streetCleanAddress.size() > 0) {
+                            if (found) {
+                                streetCleanAddress = dbConnectionHandler.getRequiredAddress(substreetParm, streetParm, postalCode);
 
-                            StringBuilder sc = new StringBuilder();
-                            int count = 1;
-                            for (StreetCleaningDataBean bean : streetCleanAddress) {
+                                if (streetCleanAddress != null && streetCleanAddress.size() > 0) {
 
-                                if (bean.getRightLeft().equals("R")) {
-                                    sc.append(String.valueOf(bean.getRT_FADD()) + "-" + String.valueOf(bean.getRT_TOADD()) + " " + bean.getSTREETNAME() + "\n");
-                                }
-                                if (bean.getRightLeft().equals("L")) {
-                                    sc.append(String.valueOf(bean.getLF_FADD()) + "-" + String.valueOf(bean.getLF_TOADD()) + " " + bean.getSTREETNAME() + "\n");
-                                }
+                                    StringBuilder sc = new StringBuilder();
+                                    int count = 1;
+                                    Calendar calendar = Calendar.getInstance();
+                                    int currDay = calendar.get(Calendar.DAY_OF_WEEK);
+                                    calendar.setMinimalDaysInFirstWeek(7);
+                                    int currWeek = calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH);
+                                    String currDayOfWeek = getDayOfWeek(currDay);
 
-                                sc.append(bean.getWeekDay() + " Weeks:");
-                                if (bean.getWeek1OfMonth().equals("Y")) {
-                                    sc.append(" 1");
-                                }
-                                if (bean.getWeek2OfMonth().equals("Y")) {
-                                    sc.append(" 2");
-                                }
-                                if (bean.getWeek3OfMonth().equals("Y")) {
-                                    sc.append(" 3");
-                                }
-                                if (bean.getWeek4OfMonth().equals("Y")) {
-                                    sc.append(" 4");
-                                }
-                                if (bean.getWeek5OfMonth().equals("Y")) {
-                                    sc.append(" 5");
-                                }
-                                sc.append(" \n");
+                                    for (StreetCleaningDataBean bean : streetCleanAddress) {
 
-                                sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
-                                if (bean.getHolidays().equals("N")) {
-                                    sc.append("No cleaning on holidays \n");
-                                }
+                                        if (bean.getRightLeft().equals("R")) {
+                                            sc.append(String.valueOf(bean.getRT_FADD()) + "-" + String.valueOf(bean.getRT_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                                        }
+                                        if (bean.getRightLeft().equals("L")) {
+                                            sc.append(String.valueOf(bean.getLF_FADD()) + "-" + String.valueOf(bean.getLF_TOADD()) + " " + bean.getSTREETNAME() + "\n");
+                                        }
 
-                                count++;
-                                if (count == 9) {
-                                    break;
+                                        sc.append(bean.getWeekDay() + " Weeks:");
+                                        List<Integer> weekList = new ArrayList<Integer>();
+                                        if (bean.getWeek1OfMonth().equals("Y")) {
+                                           weekList.add(1);
+                                            sc.append(" 1");
+                                        }
+                                        if (bean.getWeek2OfMonth().equals("Y")) {
+                                            weekList.add(2);
+                                            sc.append(" 2");
+                                        }
+                                        if (bean.getWeek3OfMonth().equals("Y")) {
+                                            weekList.add(3);
+                                            sc.append(" 3");
+                                        }
+                                        if (bean.getWeek4OfMonth().equals("Y")) {
+                                            weekList.add(4);
+                                            sc.append(" 4");
+                                        }
+                                        if (bean.getWeek5OfMonth().equals("Y")) {
+                                            weekList.add(5);
+                                            sc.append(" 5");
+                                        }
+
+                                        sc.append(" \n");
+
+                                        sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
+                                        if (bean.getHolidays().equals("N")) {
+                                            sc.append("No cleaning on holidays \n");
+                                        }
+                                        // to check if street cleaning is going on currently
+                                        String currentInfo = "Street cleaning is not going on currently. \n\n";
+                                        if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase(bean.getWeekDay())) {
+                                            String fromString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getFromHour();
+                                            String toString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getToHour();
+                                            if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase("Mon")) {
+                                                SimpleDateFormat parser = new SimpleDateFormat("dd:MM:yyyy:HH:mm");
+                                                try {
+                                                    Date fromDate = parser.parse(fromString);
+                                                    Date toDate = parser.parse(toString);
+                                                    if (calendar.getTime().after(fromDate) && calendar.getTime().before(toDate)) {
+                                                        currentInfo = "Street cleaning is going on currently. \n\n";
+                                                    }
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                        sc.append(currentInfo);
+
+                                        count++;
+                                        if (count == 9) {
+                                            break;
+                                        }
+                                    }
+
+                                    // set the information using Setter.
+                                    setStreetCleaningInformation(sc.toString());
+
+                                    // Writing Retrieved data to log
+                                    Log.d("Data: ", sc.toString());
                                 }
                             }
-                            // set the information using Setter.
-                            setStreetCleaningInformation(sc.toString());
-
-                            // Writing Retrieved data to log
-                            Log.d("Data: ", sc.toString());
                         }
                     }
                 }
@@ -294,6 +343,7 @@ public class MainActivity extends ActionBarActivity implements
                 addMarker(latLng, title);
             }
         });
+
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
@@ -314,6 +364,17 @@ public class MainActivity extends ActionBarActivity implements
         });
     }
 
+    private List<Address> getGeoCoder(LatLng latLng) {
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+        geocoder.isPresent();
+        List<Address> matches = null;
+        try {
+            matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return matches;
+    }
     private void updateMarkerPosition(LatLng latLng) {
 
         //Log.d("DEMO=====>", latLng.toString());
@@ -322,22 +383,23 @@ public class MainActivity extends ActionBarActivity implements
         String longitude = String.valueOf(latLng.longitude);
         String radius = "0.25";
 
-        List<SFParkBean> response = null;
+        //List<SFParkBean> response = null;
 
         try {
-            response = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
+            SfParkBeanList = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
         } catch (ParkingAppException e) {
-
+            e.printStackTrace();
+            Log.d("Caught Exception", e.getMessage());
         }
-        if (response != null) {
+        if (SfParkBeanList != null) {
             StringBuilder sf = new StringBuilder();
             int count = 1;
-            for (SFParkBean bean : response) {
+            for (SFParkBean bean : SfParkBeanList) {
 
                 sf.append(" " + count + " : " + bean.getName() + "\n");
                 //Log.d("DEMO=====>", sf.toString());
                 count++;
-                if (count == 9) {
+                if (count == Constants.LIMIT_FOR_PARKING_DISPLAY + 1) {
                     break;
                 }
             }
@@ -461,6 +523,7 @@ public class MainActivity extends ActionBarActivity implements
             //calls a dialog box
             DialogFragment myFragment = new ClearMarkerDialog();
             myFragment.show(getFragmentManager(), "theDialog");
+            SfParkBeanList.clear();
             return true;
         }
         // getLastKnownLocation wasn't giving me accurate coordinates.
@@ -498,6 +561,28 @@ public class MainActivity extends ActionBarActivity implements
             myFragment.show(getFragmentManager(), "helpDialog_2");
             return true;
 
+        }
+        //when user clicks Favorites button, the current parking info will be stored in database
+        if(id== R.id.action_favorites) {
+
+            try {
+                if(SfParkBeanList!= null && SfParkBeanList.size() != 0) {
+                    dbConnectionHandler.insertParkingInfo(SfParkBeanList);
+                    Toast.makeText(getApplicationContext(), "Current Parking info added to favorites", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
+                }
+            }catch(SQLiteException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
+            }
+           }
+
+        //when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
+        if(id== R.id.action_view_favorites) {
+            Intent intent = new Intent(this, DisplayFavorite.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -616,7 +701,6 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-
     // getter and setter for Information. In order to access it globally.
     public void setInformation(String information) {
         this.information = information;
@@ -634,6 +718,33 @@ public class MainActivity extends ActionBarActivity implements
         return streetCleaningInformation;
     }
 
+    private String getDayOfWeek(int value) {
+      String day = null ;
+        switch(value){
+            case 1:
+                day="Sun";
+                break;
+            case 2:
+                day="Mon";
+                break;
+            case 3:
+                day="Tues";
+                break;
+            case 4:
+                day="Wed";
+                break;
+            case 5:
+                day="Thurs";
+                break;
+            case 6:
+                day="Fri";
+                break;
+            case 7:
+                day="Sat";
+                break;
+        }
+        return day;
+    }
 
 
     private static class InflatingEntity extends HttpEntityWrapper {
@@ -651,5 +762,6 @@ public class MainActivity extends ActionBarActivity implements
             return -1;
         }
     }
+
 
 }

@@ -21,5 +21,6 @@ public class Constants {
     public static String XML_TAG_BEG=  "BEG";
     public static String XML_TAG_END=  "END";
 
+    public static int LIMIT_FOR_PARKING_DISPLAY =8;
     public static final String SQL_STREET_CLEANING_FILE ="sf_street_cleaning.sql";
 }
