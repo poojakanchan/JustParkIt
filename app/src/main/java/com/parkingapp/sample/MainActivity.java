@@ -143,9 +143,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 // call the updateMarkerPosition every time the lat-lng is updated.
                 updateMarkerPosition(latLng);
 
-
-
-                /*
                 SFParkHandler sfParkHandler = new SFParkHandler();
                 String latitude = String.valueOf(latLng.latitude);
                 String longitude = String.valueOf(latLng.longitude);
@@ -210,7 +207,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                             return customView;
                         }
                     });
-                }*/
+                }
             }
         });
 
@@ -224,7 +221,6 @@ public class MainActivity extends FragmentActivity implements LocationListener {
                 SQLiteDatabase sqLiteDatabase=dbConnectionHandler.getWritableDatabase();
                 dbConnectionHandler.onCreate(sqLiteDatabase);
                 //dbConnectionHandler.getRequiredAddress("11TH AVE",94116);
-
 
                 Geocoder geocoder = new Geocoder(getApplicationContext());
                 geocoder.isPresent();

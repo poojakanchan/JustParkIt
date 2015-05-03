@@ -4,18 +4,18 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.parkingapp.utility.Constants;
+import com.parkingapp.exception.ParkingAppException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.io.InputStreamReader;
+import java.util.zip.ZipInputStream;
 
 /**
  * Created by nayanakamath on 4/24/15.
@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
  * Added a parsing method parseSQL for sf_street_cleaning.sql file. It parses data from parser and stores in database
  * 2. Nayana Kamath
  * Solved issue with repeated entries into database
+ * Added whole SF Street Cleaning data into StreetCleaning table
  */
 
 
@@ -36,30 +37,34 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
     private Context context;
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME ="StreetCleaningDB";
-    private static final String TABLE_NAME ="Sfsu_StreetCleaning";
+    //private static final String TABLE_NAME ="Sfsu_StreetCleaning";
+    private static final String TABLE_NAME ="StreetCleaning";
 
     public DBConnectionHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context=context;
     }
 
-    public void parseSQL(SQLiteDatabase sqLiteDatabase, AssetManager assetManager) {
+    public void parseSQL(SQLiteDatabase sqLiteDatabase, AssetManager assetManager) throws ParkingAppException {
         InputStream inputStream = null;
         try {
-            inputStream = assetManager.open(Constants.SQL_STREET_CLEANING_FILE);
+            inputStream = assetManager.open("street_cleaning.zip");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (inputStream != null) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-            String line = null;
-            try {
-                while ((line = br.readLine()) != null) {
-                    sqLiteDatabase.execSQL(line);
+        ZipInputStream zipInputStream=new ZipInputStream(inputStream);
+
+        try{
+            while ((zipInputStream.getNextEntry())!=null){
+                BufferedReader in = new BufferedReader(new InputStreamReader(zipInputStream));
+                String line;
+                while ((line=in.readLine()) != null) {
+                  sqLiteDatabase.execSQL(line);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -71,7 +76,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         if(check_TableIsNull(db,TABLE_NAME)==true) {
             ContextWrapper contextWrapper = new ContextWrapper(context);
             AssetManager assetManager = contextWrapper.getAssets();
-            parseSQL(db, assetManager);
+            try {
+                parseSQL(db, assetManager);
+            } catch (ParkingAppException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -103,7 +112,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
          String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
                  +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
 
-        Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
+         Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
          if (c.moveToFirst()) {
             do {
                 StreetCleaningDataBean streetCleaningDataBean = new StreetCleaningDataBean();
