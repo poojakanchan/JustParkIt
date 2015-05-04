@@ -75,7 +75,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_favorites"
-        android:icon="@drawable/ic_action_favorites"
+        android:icon="@drawable/ic_action_star"
         android:title="@string/action_favorites"
         app:showAsAction="always"
         android:theme="@android:style/Animation.Toast"/>
