@@ -821,7 +821,7 @@ public class MainActivity extends ActionBarActivity implements
      * This is an inner class used to created a dialog fragment when users
      * click the Clear Markers Tab in the action overflow
      */
-    public static class ClearMarkerDialog extends DialogFragment {
+    public class ClearMarkerDialog extends DialogFragment {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -835,7 +835,7 @@ public class MainActivity extends ActionBarActivity implements
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     mMap.clear();
-                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Markers Cleared", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -844,8 +844,7 @@ public class MainActivity extends ActionBarActivity implements
             theDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-
-                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Clear Canceled", Toast.LENGTH_SHORT).show();
 
                 }
             });
