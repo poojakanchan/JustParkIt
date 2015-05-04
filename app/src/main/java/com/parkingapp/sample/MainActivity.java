@@ -615,7 +615,7 @@ public class MainActivity extends ActionBarActivity implements
                 CameraUpdate currentLocation = CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
                 mMap.animateCamera(currentLocation, 800, null);
             } else {
-                Toast.makeText(getApplicationContext(), "Current loc is null", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Current location not available.", Toast.LENGTH_LONG).show();
 
             /*
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
