@@ -14,7 +14,8 @@ package com.parkingapp.sample;
  *          Added a code to check whether street cleaning is currently going on or not and display message accordingly.
  */
 
-import android.app.AlertDialog;
+//import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -751,6 +752,14 @@ public class MainActivity extends ActionBarActivity implements
             return true;
 
         }
+
+        if (id == R.id.help_choice_3) {
+            DialogFragment myFragment = new AddToFavoritesHelp();
+            myFragment.show(getFragmentManager(), "helpDialog_3");
+            item.setChecked(true);
+            return true;
+
+        }
         //when user clicks Favorites button, the current parking info will be stored in database
         if (id == R.id.action_favorites) {
 
@@ -826,7 +835,7 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            AlertDialog.Builder theDialog = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder theDialog = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             theDialog.setTitle("Clear Markers");
             theDialog.setMessage("Are you sure you would like to clear all markers on map?");
             // Markers will be cleared if user clicks YES and a toast will appear notifying
@@ -862,10 +871,17 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_1.setTitle("Street Cleaning Help");
-            helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n-Tap on the yellow marker to view Street Cleaning Information");
-
+            helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n" +
+                    "-Tap on the yellow marker to view Street Cleaning Information\n" +
+                    "-The red line that appears on the map corresponds to right side of the street\n" +
+                    "-The blue line that appears on the map corresponds to left side of the street");
+            helpDialog_1.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
 
             return helpDialog_1.create();
         }
@@ -879,12 +895,44 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            AlertDialog.Builder helpDialog_2 = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder helpDialog_2 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_2.setTitle("Parking Information Help");
-            helpDialog_2.setMessage("-Long press anywhere on the map to place Marker\n-Tap on the blue marker to view Parking Information");
-
+            helpDialog_2.setMessage("-Long press anywhere on the map to place Marker\n" +
+                    "-Tap on the blue marker to view Parking Information");
+            helpDialog_2.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
 
             return helpDialog_2.create();
+        }
+    }
+    /**
+     * This is an inner class used to created a dialog fragment when users
+     * click the Add to Favorites help item under the Help menu  in the action overflow
+     */
+    public static class AddToFavoritesHelp extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder helpDialog_3 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
+            helpDialog_3.setTitle("Add to Favorites Help");
+            helpDialog_3.setMessage("-Long press anywhere on the map to place Marker\n" +
+                    "-Tap on the blue marker to view if Parking Information is found\n" +
+                    "-If Parking data is found and you would like to add to favorites,\n" +
+                    "tap the star icon in the action bar and parking data will be saved.\n" +
+                    "-To view your favorite parking spots go to View Favorites tab in the action overflow\n" +
+                    "-To delete parking spots long press on the data and click Delete from favorites");
+            helpDialog_3.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+
+                }
+            });
+
+            return helpDialog_3.create();
         }
     }
 
