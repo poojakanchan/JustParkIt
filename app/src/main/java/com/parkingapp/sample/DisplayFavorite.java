@@ -2,8 +2,11 @@ package com.parkingapp.sample;
 
 import android.app.ListActivity;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +14,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.HeaderViewListAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,10 +35,56 @@ import java.util.List;
  * database.
  */
 
-public class DisplayFavorite extends ListActivity {
+public class DisplayFavorite extends AppCompatActivity {
 
     DBConnectionHandler dbConnectionHandler;
     ArrayList<String> displayList;
+
+    /**
+     * Method was created to to adapt Listview with AppCompatActivity
+     * @param lv list view
+     * @param v view
+     * @param position
+     * @param id
+     */
+    protected void onListItemClick(ListView lv, View v, int position, long id) {
+        getListView().getOnItemClickListener().onItemClick(lv, v, position, id);
+    }
+
+    private ListView mListView;
+
+    /**
+     * Method was created to to adapt Listview with AppCompatActivity
+     * @return
+     */
+    protected ListView getListView() {
+        if (mListView == null) {
+            mListView = (ListView) findViewById(android.R.id.list);
+        }
+        return mListView;
+    }
+
+    /**
+     * Method was created to to adapt Listview with AppCompatActivity
+     * @param adapter
+     */
+    protected void setListAdapter(ListAdapter adapter) {
+        getListView().setAdapter(adapter);
+    }
+
+    /**
+     * Method was created to to adapt Listview with AppCompatActivity
+     * @return
+     */
+
+    protected ListAdapter getListAdapter() {
+        ListAdapter adapter = getListView().getAdapter();
+        if (adapter instanceof HeaderViewListAdapter) {
+            return ((HeaderViewListAdapter)adapter).getWrappedAdapter();
+        } else {
+            return adapter;
+        }
+    }
 
     /**
      * extracts records from table PARKING_FAVORITES and displays them in listview.
@@ -41,11 +92,12 @@ public class DisplayFavorite extends ListActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_favorite);
         ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
         dbConnectionHandler = DBConnectionHandler.getDBHandler(contextWrapper);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         TextView textView = new TextView(contextWrapper);
         textView.setTextSize(20);
         textView.setHeight(75);
@@ -133,6 +185,8 @@ public class DisplayFavorite extends ListActivity {
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+
+
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
        // int menuItemIndex = item.getItemId();
         String parkingInfo = displayList.get(info.position -1);
@@ -146,4 +200,19 @@ public class DisplayFavorite extends ListActivity {
         Toast.makeText(getApplicationContext(), "Current Parking info deleted from favorites", Toast.LENGTH_LONG).show();
         return true;
     }
+    @Override
+    /**
+     * This method will return the user to the main activity when user taps the back button on the
+     * action bar in favorites activity
+     */
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+
+        if (id==android.R.id.home) {
+            finish();
+        }
+        return true;
+
+    }
+
 }

@@ -20,6 +20,6 @@
     <string name="add_to_favorites_help">Add To Favorites Help</string>
     <string name="action_favorites">Add To Favorites</string>
     <string name="action_view_favorites">View Favorites</string>
-    <string name="title_activity_display_favorite">DisplayFavorite</string>
+    <string name="title_activity_display_favorite">Favorites</string>
     <string name="lblBtnDel">Delete Selected Items</string>
 </resources>

@@ -36,7 +36,8 @@
         </activity>
         <activity
             android:name="com.parkingapp.sample.DisplayFavorite"
-            android:label="@string/title_activity_display_favorite" >
+            android:label="@string/title_activity_display_favorite"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 
