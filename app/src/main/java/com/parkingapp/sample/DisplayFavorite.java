@@ -8,9 +8,12 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pooja.sfparksample.R;
 import com.parkingapp.database.DBConnectionHandler;
@@ -48,7 +51,13 @@ public class DisplayFavorite extends ListActivity {
         textView.setHeight(75);
         textView.setText("List of Favorite Parking Locations");
         textView.setTextColor(Color.BLUE);
+        //ListView listView= new ListView(contextWrapper);
         getListView().addHeaderView(textView);
+        //getListView().setChoiceMode(listView.CHOICE_MODE_MULTIPLE);
+
+        //	listview.setChoiceMode(listview.CHOICE_MODE_NONE);
+        //	listview.setChoiceMode(listview.CHOICE_MODE_SINGLE);
+
 
         List<SFParkBean> list = dbConnectionHandler.getFavouriteParkingSpots();
         displayList = new ArrayList<String>();
@@ -111,11 +120,13 @@ public class DisplayFavorite extends ListActivity {
             view.findViewById(30).setClickable(false);
         } else {
             menu.add(Menu.NONE, 0, 0, "Delete from favorites");
+
         }
+
     }
 
     /**
-     * The method is called when a user clicks on "remove from favorites".
+     * The method is called when a user clicks on "Delete from favorites".
      * The method removes the selected entry from database and reloads the list.
      * @param item the selected item
      * @return
@@ -132,6 +143,7 @@ public class DisplayFavorite extends ListActivity {
         System.out.println("Size of display list after" + displayList.size());
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getListView().getContext(), android.R.layout.simple_list_item_1, displayList);
         getListView().setAdapter(adapter);
+        Toast.makeText(getApplicationContext(), "Current Parking info deleted from favorites", Toast.LENGTH_LONG).show();
         return true;
     }
 }

@@ -10,7 +10,16 @@
     android:smoothScrollbar="true"
     android:clickable="true"
     android:textSize="2dp"
+    android:theme="@android:style/Animation.Toast"
     >
+    <!--android:choiceMode="multipleChoice"-->
 
+<!--<Button
+    android:id="@+id/btnDel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/lblBtnDel"
+    android:layout_alignParentBottom="true"
+    />-->
 </ListView>
 </RelativeLayout>

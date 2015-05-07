@@ -10,11 +10,15 @@ package com.parkingapp.sample;
  *          Fixed radio buttons on layers and help menu in action overflow so that checked tab corresponds to current state
  *
  * 2. Pooja K
- * changes: Added a code to handle add to favorites and iew favorites part.
+ * changes: Added a code to handle add to favorites and view favorites part.
  *          Added a code to check whether street cleaning is currently going on or not and display message accordingly.
  */
 
 //import android.app.AlertDialog;
+import android.content.Context;
+import android.location.LocationManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -29,6 +33,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -99,9 +104,12 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
         if (checkPlayServices()) {
             buildGoogleApiClient();
         }
+        checkGPSStatus();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -133,7 +141,48 @@ public class MainActivity extends ActionBarActivity implements
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
 
+
+
+
     }
+
+  /* This method checks if the user has GPS and Network Services enabled.
+  If the locations services aren't enabled, this method redirects the user to the phone's settings
+   */
+
+    private void checkGPSStatus() {
+        LocationManager locationManager = null;
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+        if ( locationManager == null ) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+        try {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex){}
+        try {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex){}
+        if ( !gps_enabled && !network_enabled ){
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this,R.style.DialogTheme);
+
+
+
+            dialog.setMessage("GPS not enabled \nTurn on GPS \nGoto Settings-> Location -> Turn Location ON\nPress Ok to take you there");
+            dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //this will navigate user to the device location settings screen
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            AlertDialog alert = dialog.create();
+            alert.show();
+        }
+    }
+
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -883,9 +932,7 @@ public class MainActivity extends ActionBarActivity implements
             AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_1.setTitle("Street Cleaning Help");
             helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n" +
-                    "-Tap on the yellow marker to view Street Cleaning Information\n" +
-                    "-The red line that appears on the map corresponds to right side of the street\n" +
-                    "-The blue line that appears on the map corresponds to left side of the street");
+                    "-Tap on the yellow marker to view Street Cleaning Information\n" );
             helpDialog_1.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
