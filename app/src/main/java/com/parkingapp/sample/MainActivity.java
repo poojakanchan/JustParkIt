@@ -167,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this,R.style.DialogTheme);
 
 
-
+//Pops up a dialog box if location services are not enabled
             dialog.setMessage("GPS not enabled \nTurn on GPS \nGoto Settings-> Location -> Turn Location ON\nPress Ok to take you there");
             dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
