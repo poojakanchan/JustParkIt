@@ -123,27 +123,6 @@ public class MainActivity extends ActionBarActivity implements
 
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        // setup default location onMap load event
-
-        double lat = 37.721897;
-        double lng = -122.47820939999997;
-        LatLng coordinate = new LatLng(lat, lng);
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
-
-        mMap.moveCamera(center);
-        mMap.animateCamera(zoom);
-
-
-
-
     }
 
   /* This method checks if the user has GPS and Network Services enabled.
@@ -168,8 +147,9 @@ public class MainActivity extends ActionBarActivity implements
 
 
 //Pops up a dialog box if location services are not enabled
-            dialog.setMessage("GPS not enabled \nTurn on GPS \nGoto Settings-> Location -> Turn Location ON\nPress Ok to take you there");
-            dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            dialog.setTitle("GPS Not Enabled");
+            dialog.setMessage("Please turn on GPS for proper functionality. \nGo to Settings -> Location -> Turn Location ON or press OK to take you there");
+            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
