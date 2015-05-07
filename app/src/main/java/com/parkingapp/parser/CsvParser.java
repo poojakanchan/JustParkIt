@@ -1,5 +1,6 @@
 package com.parkingapp.parser;
 
+import android.content.Context;
 import android.content.ContextWrapper;
 import com.parkingapp.exception.ParkingAppException;
 import java.io.BufferedReader;
@@ -14,14 +15,13 @@ import java.io.IOException;
 
  */
 public class CsvParser {
-
-    public static final String INSERT_QUERY ="INSERT INTO Sfsu_StreetCleaning(WeekDay,RightLeft, Corridor, FromHour," +
+    public static final String INSERT_QUERY ="INSERT INTO StreetCleaning (WeekDay, RightLeft, Corridor, FromHour," +
             "ToHour, Holidays, Week1OfMonth, Week2OfMonth, Week3OfMonth, Week4OfMonth, Week5OfMonth," +
             "LF_FADD, LF_TOADD, RT_TOADD, RT_FADD, STREETNAME, ZIP_CODE, NHOOD)  VALUES (";
     public void parseCSV() throws ParkingAppException{
         try{
             FileReader fileReader =
-                    new FileReader("sf_street_cleaning.csv");
+                    new FileReader("Street_Sweeping_full.csv");
 
             BufferedReader bufferedReader =
                     new BufferedReader(fileReader);
