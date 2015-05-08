@@ -10,7 +10,7 @@ package com.parkingapp.sample;
  *          Fixed radio buttons on layers and help menu in action overflow so that checked tab corresponds to current state
  *
  * 2. Pooja K
- * changes: Added a code to handle add to favorites and view favorites part.
+ * changes: Added a code to handle add to favorites and iew favorites part.
  *          Added a code to check whether street cleaning is currently going on or not and display message accordingly.
  *
  * 3. Pooja K
@@ -107,8 +107,6 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         if (checkPlayServices()) {
             buildGoogleApiClient();
         }
@@ -126,6 +124,24 @@ public class MainActivity extends ActionBarActivity implements
 
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        // setup default location onMap load event
+
+        double lat = 37.721897;
+        double lng = -122.47820939999997;
+        LatLng coordinate = new LatLng(lat, lng);
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
+
     }
 
   /* This method checks if the user has GPS and Network Services enabled.
@@ -165,7 +181,6 @@ public class MainActivity extends ActionBarActivity implements
             alert.show();
         }
     }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -944,7 +959,9 @@ public class MainActivity extends ActionBarActivity implements
             AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_1.setTitle("Street Cleaning Help");
             helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n" +
-                    "-Tap on the yellow marker to view Street Cleaning Information\n" );
+                    "-Tap on the yellow marker to view Street Cleaning Information\n" +
+                    "-The red line that appears on the map corresponds to right side of the street\n" +
+                    "-The blue line that appears on the map corresponds to left side of the street");
             helpDialog_1.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
