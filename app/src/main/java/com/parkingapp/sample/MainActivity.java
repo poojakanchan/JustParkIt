@@ -1015,8 +1015,8 @@ public class MainActivity extends ActionBarActivity implements
 
             AlertDialog.Builder helpDialog_2 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_2.setTitle("Parking Information Help");
-            helpDialog_2.setMessage("-Long press anywhere on the map to place Marker\n" +
-                    "-Tap on the blue marker to view Parking Information");
+            helpDialog_2.setMessage("-Tap anywhere on the map to place Marker\n" +
+                    "-Tap on the markers with a P icon to view Parking Information");
             helpDialog_2.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
