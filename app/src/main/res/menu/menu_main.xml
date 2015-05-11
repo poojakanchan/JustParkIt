@@ -6,6 +6,29 @@
         android:orderInCategory="5"
         app:showAsAction="never"
         android:theme="@android:style/Animation.Toast"/>
+
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/menu_5_choice_1"
+                    android:title="@string/tenthmi"
+                    app:showAsAction="never"
+                    android:checked="true"/>
+                <item android:id="@+id/menu_5_choice_2"
+                    android:title="@string/quartermi"
+                    app:showAsAction="never"
+                    />
+                <item android:id="@+id/menu_5_choice_3"
+                    android:title="@string/halfmi"
+                    app:showAsAction="never"
+                    />
+                <item android:id="@+id/menu_5_choice_4"
+                    android:title="@string/mi"
+                    app:showAsAction="never"
+                    />
+            </group>
+        </menu>
+    />
+
     <item android:id="@+id/action_view_favorites"
         android:title="@string/action_view_favorites"
         android:orderInCategory="4"
@@ -32,7 +55,7 @@
                 <item android:id="@+id/menu_2_choice_3"
                     android:title="@string/terrain"
                     app:showAsAction="never"
-                 />
+                    />
                 <item android:id="@+id/menu_2_choice_4"
                     android:title="@string/hybrid"
                     app:showAsAction="never"

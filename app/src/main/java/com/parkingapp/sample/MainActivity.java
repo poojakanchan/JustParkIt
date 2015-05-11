@@ -104,6 +104,7 @@ public class MainActivity extends ActionBarActivity implements
     MarkerOptions marker;
     List<SFParkBean> SfParkBeanList = null;
     DBConnectionHandler dbConnectionHandler;
+    String radius = "0.1";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -540,7 +541,7 @@ public class MainActivity extends ActionBarActivity implements
         SFParkHandler sfParkHandler = new SFParkHandler();
         String latitude = String.valueOf(latLng.latitude);
         String longitude = String.valueOf(latLng.longitude);
-        String radius = "0.25";
+        //String radius = "0.25";
 
         //List<SFParkBean> response = null;
         mMap.clear();
@@ -726,7 +727,7 @@ public class MainActivity extends ActionBarActivity implements
         SFParkHandler sfParkHandler = new SFParkHandler();
         String latitude = String.valueOf(latLng.latitude);
         String longitude = String.valueOf(latLng.longitude);
-        String radius = "0.25";
+        //String radius = "0.25";
         //mMap.clear();
 
         // List<SFParkBean> response = null;
@@ -803,6 +804,36 @@ public class MainActivity extends ActionBarActivity implements
             item.setChecked(true);
             return true;
         }
+
+        //when user clicks Settings-> Display parking within tenth of a mile, radius sent to SFPark will be 0.1 mi
+        if (id == R.id.menu_5_choice_1) {
+            radius = "0.1";
+            Toast.makeText(getApplicationContext(), "Shall display parking within tenth of a mile", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
+            return true;
+        }
+        //when user clicks Settings-> Display parking within quarter mile, radius sent to SFPark will be 0.25 mi
+        else if (id == R.id.menu_5_choice_2) {
+            radius = "0.25";
+            Toast.makeText(getApplicationContext(), "Shall display parking within quarter of a mile", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
+            return true;
+        }
+        //when user clicks Settings-> Display parking within half a mile, radius sent to SFPark will be 0.5 mi
+        else if (id == R.id.menu_5_choice_3) {
+            radius = "0.5";
+            Toast.makeText(getApplicationContext(), "Shall display parking within half a mile", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
+            return true;
+        }
+        //when user clicks Settings-> Display parking within a mile, radius sent to SFPark will be 1 mi
+        else if (id == R.id.menu_5_choice_4) {
+            radius = "1";
+            Toast.makeText(getApplicationContext(), "Shall display parking within 1 mile", Toast.LENGTH_LONG).show();
+            item.setChecked(true);
+            return true;
+        }
+
         //dialog fragment will appear when user clicks on Clear Markers tab in action overflow
         if (id == R.id.action_clearMarkers) {
             //calls a dialog box
