@@ -38,7 +38,7 @@ import java.util.List;
  * 2. Nayana Kamath
  * Solved issue with repeated entries into database
  * Added whole SF Street Cleaning data into StreetCleaning table
- *
+ * Solved issue with Streetnames having "'" like O'Farrell street
  */
 
 
@@ -141,7 +141,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
     public ArrayList<StreetCleaningDataBean> getRequiredAddress(Number SUBSTREET, String STREETNAME, Number ZIP_CODE) {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
-        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
+        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME.replaceAll("'","/") +"'and ZIP_CODE="+ZIP_CODE
                 +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
 
          Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
