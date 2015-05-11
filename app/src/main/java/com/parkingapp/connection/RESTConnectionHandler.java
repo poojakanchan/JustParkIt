@@ -102,6 +102,10 @@ public class RESTConnectionHandler {
               throw new IOException(conn.getResponseMessage());
           }
 
+          //Setting timeout to 5 sec
+          conn.setConnectTimeout(5000);
+          conn.setReadTimeout(5000);
+
           SfXmlParser parser = new SfXmlParser();
           parser.createParser();
           Document document = parser.getParser().parse(conn.getInputStream());

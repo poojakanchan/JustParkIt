@@ -489,7 +489,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void drawLine(String rightFrom, String rightTo, String leftFrom, String leftTo) {
-
+        Log.d("method:","Drawline method called");
         Geocoder geocoder = new Geocoder(getApplicationContext());
         geocoder.isPresent();
         try {
@@ -521,7 +521,7 @@ public class MainActivity extends ActionBarActivity implements
                         .add(new LatLng(rightFromLatLng.getLatitude(), rightFromLatLng.getLongitude()),
                                 new LatLng(rightToLatLng.getLatitude(), rightToLatLng.getLongitude()))
                         .width(10)
-                        .color(Color.RED));
+                        .color(Color.GREEN));
                 mMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(leftFromLatLng.getLatitude(), leftFromLatLng.getLongitude()),
                                 new LatLng(leftToLatLng.getLatitude(), leftToLatLng.getLongitude()))
@@ -639,7 +639,7 @@ public class MainActivity extends ActionBarActivity implements
                             tvInformation.append(text[i]);
                             Spannable spannableText = (Spannable) tvInformation.getText();
                             if (side[i] == "R") {
-                                spannableText.setSpan(new ForegroundColorSpan(Color.RED), length, length + text[i].length(), 0);
+                                spannableText.setSpan(new ForegroundColorSpan(Color.GREEN), length, length + text[i].length(), 0);
                                 // tvInformation.setTextColor(getResources().getColor(R.color.right));
                             }
                             if (side[i] == "L") {
@@ -665,7 +665,8 @@ public class MainActivity extends ActionBarActivity implements
         Log.d("Left to  ", leftTo.toString());
 
         mMap.clear();
-
+        drawLine(rightFrom.toString(), rightTo.toString(), leftFrom.toString(),
+                leftTo.toString());
         // set the Marker options.
         setParkingLocations(latLng);
 
@@ -674,8 +675,7 @@ public class MainActivity extends ActionBarActivity implements
                 .title(title)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))).showInfoWindow();
 
-        drawLine(rightFrom.toString(), rightTo.toString(), leftFrom.toString(),
-                leftTo.toString());
+
     }
 
    private String getLocationText(Marker marker) {
@@ -962,7 +962,7 @@ public class MainActivity extends ActionBarActivity implements
             helpDialog_1.setTitle("Street Cleaning Help");
             helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n" +
                     "-Tap on the yellow marker to view Street Cleaning Information\n" +
-                    "-The red line that appears on the map corresponds to right side of the street\n" +
+                    "-The green line that appears on the map corresponds to right side of the street\n" +
                     "-The blue line that appears on the map corresponds to left side of the street");
             helpDialog_1.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
