@@ -686,9 +686,11 @@ public class MainActivity extends ActionBarActivity implements
            if (bean.getName().equals(marker.getTitle())) {
                marker.setTitle(bean.getName());
                info.append(bean.getName() + "\n");
-               if (bean.getType() != null) {
+               
+               // To display status of parking location
+               /*   if (bean.getType() != null) {
                    info.append("Status: " + bean.getType() + "\n");
-               }
+               }*/
                if (bean.getAddress() != null) {
                    info.append("Address: " + bean.getAddress() + "\n");
                }
