@@ -20,6 +20,7 @@ package com.parkingapp.sample;
 
 //import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -615,16 +616,6 @@ public class MainActivity extends ActionBarActivity implements
 
     private void addMarker(LatLng latLng, final String title, String rightFrom, String rightTo, String leftFrom, String leftTo,
                            final String[] text, final String[] side) {
-        mMap.clear();
-
-        // set the Marker options.
-        setParkingLocations(latLng);
-
-        mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(title)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))).showInfoWindow();
-
 
         // update the WindowAdapter in order to inflate the TextView with custom Text View Adapter
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -673,6 +664,16 @@ public class MainActivity extends ActionBarActivity implements
         Log.d("Left from  ", leftFrom.toString());
         Log.d("Left to  ", leftTo.toString());
 
+        mMap.clear();
+
+        // set the Marker options.
+        setParkingLocations(latLng);
+
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))).showInfoWindow();
+
         drawLine(rightFrom.toString(), rightTo.toString(), leftFrom.toString(),
                 leftTo.toString());
     }
@@ -682,6 +683,7 @@ public class MainActivity extends ActionBarActivity implements
        for(int i=0; i < SfParkBeanList.size() ; i++) {
            SFParkBean bean = SfParkBeanList.get(i);
            if (bean.getName().equals(marker.getTitle())) {
+               marker.setTitle(bean.getName());
                info.append(bean.getName() + "\n");
                if (bean.getType() != null) {
                    info.append("Status: " + bean.getType() + "\n");
@@ -744,7 +746,7 @@ public class MainActivity extends ActionBarActivity implements
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(bean.getLongitude(), bean.getLatitude()))
                         .title(bean.getName())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.parking_marker))
                         .draggable(true).visible(true));
                 if (count == 9) {
                     break;
