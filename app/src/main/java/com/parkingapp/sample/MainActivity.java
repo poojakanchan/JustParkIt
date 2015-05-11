@@ -521,7 +521,7 @@ public class MainActivity extends ActionBarActivity implements
                         .add(new LatLng(rightFromLatLng.getLatitude(), rightFromLatLng.getLongitude()),
                                 new LatLng(rightToLatLng.getLatitude(), rightToLatLng.getLongitude()))
                         .width(10)
-                        .color(Color.GREEN));
+                        .color(Color.MAGENTA));
                 mMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(leftFromLatLng.getLatitude(), leftFromLatLng.getLongitude()),
                                 new LatLng(leftToLatLng.getLatitude(), leftToLatLng.getLongitude()))
@@ -634,12 +634,12 @@ public class MainActivity extends ActionBarActivity implements
                 tvInformation.setText("");
                 int length = 0;
                 if(marker.getTitle().equals(title)) {
-                    for (int i = 0; i < 8; i++) {
+                    for (int i = 0; i < 6; i++) {
                         if (text[i] != "" && text[i] != null) {
                             tvInformation.append(text[i]);
                             Spannable spannableText = (Spannable) tvInformation.getText();
                             if (side[i] == "R") {
-                                spannableText.setSpan(new ForegroundColorSpan(Color.GREEN), length, length + text[i].length(), 0);
+                                spannableText.setSpan(new ForegroundColorSpan(Color.MAGENTA), length, length + text[i].length(), 0);
                                 // tvInformation.setTextColor(getResources().getColor(R.color.right));
                             }
                             if (side[i] == "L") {
