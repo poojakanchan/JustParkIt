@@ -433,7 +433,7 @@ public class MainActivity extends ActionBarActivity implements
                                     sc.append("No cleaning on holidays \n");
                                 }
                                 // to check if street cleaning is going on currently
-                                String currentInfo = "Street cleaning is not going on currently. \n\n";
+                                String currentInfo = "Street cleaning is not going on currently \n\n";
                                 if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase(bean.getWeekDay())) {
                                     String fromString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getFromHour();
                                     String toString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getToHour();
@@ -443,7 +443,7 @@ public class MainActivity extends ActionBarActivity implements
                                             Date fromDate = parser.parse(fromString);
                                             Date toDate = parser.parse(toString);
                                             if (calendar.getTime().after(fromDate) && calendar.getTime().before(toDate)) {
-                                                currentInfo = "Street cleaning is going on currently. \n\n";
+                                                currentInfo = "Street cleaning is going on currently \n\n";
                                             }
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -634,7 +634,7 @@ public class MainActivity extends ActionBarActivity implements
                 tvInformation.setText("");
                 int length = 0;
                 if(marker.getTitle().equals(title)) {
-                    for (int i = 0; i < 6; i++) {
+                    for (int i = 0; i < 5; i++) {
                         if (text[i] != "" && text[i] != null) {
                             tvInformation.append(text[i]);
                             Spannable spannableText = (Spannable) tvInformation.getText();
@@ -650,7 +650,7 @@ public class MainActivity extends ActionBarActivity implements
                         }
                     }
                     if(SfParkBeanList.size() ==0) {
-                        tvInformation.append("\n Parking data not available");
+                        tvInformation.append("\nParking data not available");
                     }
                 } else {
                     tvInformation.setText(getLocationText(marker));
