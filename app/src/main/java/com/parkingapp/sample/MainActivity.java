@@ -20,9 +20,7 @@ package com.parkingapp.sample;
 
 //import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.location.LocationManager;
-import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
@@ -38,7 +36,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
-import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,9 +66,9 @@ import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.database.DBConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.OperationHoursBean;
+import com.parkingapp.parser.RatesBean;
 import com.parkingapp.parser.SFParkBean;
 import com.parkingapp.database.StreetCleaningDataBean;
-import com.parkingapp.utility.Constants;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -137,7 +134,7 @@ public class MainActivity extends ActionBarActivity implements
 
         double lat = 37.721897;
         double lng = -122.47820939999997;
-        LatLng coordinate = new LatLng(lat, lng);
+        //LatLng coordinate = new LatLng(lat, lng);
         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
 
@@ -159,10 +156,14 @@ public class MainActivity extends ActionBarActivity implements
         }
         try {
             gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex){}
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
         try {
             network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex){}
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
         if ( !gps_enabled && !network_enabled ){
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this,R.style.DialogTheme);
 
@@ -310,12 +311,9 @@ public class MainActivity extends ActionBarActivity implements
 
     private void setStreetCleaningAndParkingInformation(LatLng latLng) {
        //note: parking API is called inside addMarker method.
-        ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
         Geocoder geocoder = new Geocoder(getApplicationContext());
-        geocoder.isPresent();
-        String addressText;
+        Geocoder.isPresent();
         List<Address> matches = null;
-        ArrayList<StreetCleaningDataBean> StreetCleanAddress = new ArrayList<>();
         try {
             matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
         } catch (IOException e) {
@@ -479,7 +477,7 @@ public class MainActivity extends ActionBarActivity implements
     }
     private List<Address> getGeoCoder(LatLng latLng) {
         Geocoder geocoder = new Geocoder(getApplicationContext());
-        geocoder.isPresent();
+        Geocoder.isPresent();
         List<Address> matches = null;
         try {
             matches = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
@@ -492,7 +490,7 @@ public class MainActivity extends ActionBarActivity implements
     private void drawLine(String rightFrom, String rightTo, String leftFrom, String leftTo) {
         Log.d("method:","Drawline method called");
         Geocoder geocoder = new Geocoder(getApplicationContext());
-        geocoder.isPresent();
+        Geocoder.isPresent();
         try {
             List<Address> rightFromLatLngList = geocoder.getFromLocationName(rightFrom, 1);
             List<Address> rightToLatLngList = geocoder.getFromLocationName(rightTo, 1);
@@ -569,9 +567,9 @@ public class MainActivity extends ActionBarActivity implements
                         .draggable(true).visible(true).title("Spot " + count);
                 mMap.addMarker(marker);
                 Log.d("added marker at " , bean.getName() + "  " + bean.getLatitude() + "   " + bean.getLongitude());
-                if (count == Constants.LIMIT_FOR_PARKING_DISPLAY + 1) {
+             /*   if (count == Constants.LIMIT_FOR_PARKING_DISPLAY + 1) {
                     break;
-                }
+                }*/
             }
             // set the information using Setter.
             setInformation(sf.toString());
@@ -636,14 +634,14 @@ public class MainActivity extends ActionBarActivity implements
                 int length = 0;
                 if(marker.getTitle().equals(title)) {
                     for (int i = 0; i < 5; i++) {
-                        if (text[i] != "" && text[i] != null) {
+                        if (text[i] != null && !text[i].equals("")) {
                             tvInformation.append(text[i]);
                             Spannable spannableText = (Spannable) tvInformation.getText();
-                            if (side[i] == "R") {
+                            if (side[i].equalsIgnoreCase("R")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.MAGENTA), length, length + text[i].length(), 0);
                                 // tvInformation.setTextColor(getResources().getColor(R.color.right));
                             }
-                            if (side[i] == "L") {
+                            if (side[i].equalsIgnoreCase("L")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.BLUE), length, length + text[i].length(), 0);
                                 // tvInformation.setTextColor(getResources().getColor(R.color.left));
                             }
@@ -660,14 +658,13 @@ public class MainActivity extends ActionBarActivity implements
 
             }
         });
-        Log.d("Right from  ", rightFrom.toString());
-        Log.d("Right to  ", rightTo.toString());
-        Log.d("Left from  ", leftFrom.toString());
-        Log.d("Left to  ", leftTo.toString());
+        Log.d("Right from  ", rightFrom);
+        Log.d("Right to  ", rightTo);
+        Log.d("Left from  ", leftFrom);
+        Log.d("Left to  ", leftTo);
 
         mMap.clear();
-        drawLine(rightFrom.toString(), rightTo.toString(), leftFrom.toString(),
-                leftTo.toString());
+        drawLine(rightFrom, rightTo, leftFrom,leftTo);
         // set the Marker options.
         setParkingLocations(latLng);
 
@@ -686,7 +683,16 @@ public class MainActivity extends ActionBarActivity implements
            if (bean.getName().equals(marker.getTitle())) {
                marker.setTitle(bean.getName());
                info.append(bean.getName() + "\n");
-               
+
+               if(bean.getType() != null) {
+                   info.append("Type : ");
+                   if(bean.getType().equalsIgnoreCase("on")) {
+                       info.append("Street Parking \n");
+                   } else {
+                       info.append("Garage Parking \n");
+                   }
+               }
+
                // To display status of parking location
                /*   if (bean.getType() != null) {
                    info.append("Status: " + bean.getType() + "\n");
@@ -719,6 +725,41 @@ public class MainActivity extends ActionBarActivity implements
                        }
                    }
                }
+               if (bean.getRatesBeanList() != null) {
+                   List<RatesBean> ratesList = bean.getRatesBeanList();
+                   if (ratesList != null && ratesList.size() > 0) {
+                       info.append("Parking Rates: \n");
+                       for (RatesBean ratesBean : ratesList) {
+
+                               if(ratesBean.getBegTime() != null) {
+                                   info.append(ratesBean.getBegTime());
+                               }
+                               if (ratesBean.getEndTime() != null) {
+                                   info.append("-" + ratesBean.getEndTime());
+                               }
+                               if(ratesBean.getDesc() != null) {
+                                   info.append(ratesBean.getDesc());
+                               }
+                               info.append(" : ");
+                               if(ratesBean.getRate() != 0.0) {
+                                   info.append("$" + ratesBean.getRate() + " ");
+                               }
+                               if(ratesBean.getRateQuantifier() != null) {
+                                   info.append(ratesBean.getRateQuantifier());
+                               }
+                               if(ratesBean.getRateRestriction() != null) {
+                                   info.append("\n " + ratesBean.getRateRestriction());
+                               }
+                           info.append("\n");
+                       }
+                   }
+               }
+               if(bean.getOper() != 0) {
+                   info.append("Number of spaces currently operational: " + bean.getOper() + "\n");
+               }
+               if(bean.getOcc() != 0) {
+                   info.append("Number of spaces currently occupied: " + bean.getOcc() + "\n");
+               }
            }
        }
 
@@ -737,11 +778,11 @@ public class MainActivity extends ActionBarActivity implements
         try {
             SfParkBeanList = sfParkHandler.callAvailabilityService(latitude, longitude, radius);
         } catch (ParkingAppException e) {
-
+            e.printStackTrace();
+            Log.d("Exception occurred at ", e.getMessage());
         }
         Log.d("current position ", latLng.latitude + " " + latLng.longitude);
         if (SfParkBeanList != null) {
-            StringBuilder sf = new StringBuilder();
             int count = 1;
             for (SFParkBean bean : SfParkBeanList) {
                 count++;
@@ -751,9 +792,9 @@ public class MainActivity extends ActionBarActivity implements
                         .title(bean.getName())
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.parking_marker))
                         .draggable(true).visible(true));
-                if (count == 9) {
+                /*if (count == 9) {
                     break;
-                }
+                }*/
             }
         }
     }
@@ -762,7 +803,6 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        MenuInflater inflater = getMenuInflater();
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
 

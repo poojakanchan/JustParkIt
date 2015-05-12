@@ -20,9 +20,16 @@ public class Constants {
     public static String XML_TAG_TO=  "TO";
     public static String XML_TAG_BEG=  "BEG";
     public static String XML_TAG_END=  "END";
+    public static String XML_TAG_OCCUPIED=  "OCC";
+    public static String XML_TAG_OPERATIONAL =  "OPER";
+
+    public static String XML_TAG_RATE_SCHEDULE = "RS";
+    public static String XML_TAG_RATE = "RATE";
+    public static String XML_TAG_RATE_QUANTIFIER = "RQ";
+    public static String XML_TAG_RATE_RESTRICTION = "RR";
 
 
-  //  public static final String SQL_STREET_CLEANING_FILE ="sf_street_cleaning.sql";
+    //  public static final String SQL_STREET_CLEANING_FILE ="sf_street_cleaning.sql";
     public static int LIMIT_FOR_PARKING_DISPLAY =8;
 }
 

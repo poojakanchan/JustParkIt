@@ -2,10 +2,8 @@ package com.parkingapp.connection;
 
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.SFParkBean;
-import com.parkingapp.parser.SfXmlParser;
 import com.parkingapp.utility.Constants;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +30,7 @@ public class SFParkHandler {
         parameters.add("uom=mile");
         parameters.add("method=availability");
         parameters.add("response=xml");
+        parameters.add("pricing=yes");
         RESTConnectionHandler restHandler = RESTConnectionHandler.getRESTConnectionHandler();
 
         String url = restHandler.generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
