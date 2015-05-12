@@ -36,7 +36,7 @@ import android.content.ContextWrapper;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -89,7 +89,7 @@ import java.util.zip.GZIPInputStream;
 
 import android.util.Log;
 
-public class MainActivity extends ActionBarActivity implements
+public class MainActivity extends AppCompatActivity implements
         LocationListener, ConnectionCallbacks, OnConnectionFailedListener {
 
     private static final String TAG = "LocationActivity";
