@@ -132,10 +132,13 @@ public class MainActivity extends AppCompatActivity implements
 
         // setup default location onMap load event
 
-        double lat = 37.721897;
-        double lng = -122.47820939999997;
+        double lat = 37.7441667;
+        double lng = -122.4383333;
         //LatLng coordinate = new LatLng(lat, lng);
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
+        //CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
+        
+        // changed default location from sfsu to sf
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.7441667, -122.4383333));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
 
         mMap.moveCamera(center);
