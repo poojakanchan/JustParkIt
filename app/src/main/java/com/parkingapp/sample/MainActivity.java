@@ -19,6 +19,7 @@ package com.parkingapp.sample;
  */
 
 //import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.location.LocationManager;
 import android.provider.Settings;
@@ -35,6 +36,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
@@ -840,10 +842,43 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
-
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_icon).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
+        // using geocode to find user entered addresses
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+                                              public boolean onQueryTextChange(    String text){
+                                                  return false;
+                                              }
+                                              public boolean onQueryTextSubmit(    String text){
+                                                  Geocoder geo=new Geocoder(getApplicationContext());
+                                                  try {
+                                                      List<Address> add=geo.getFromLocationName(text,1);
+                                                      for(Address adds : add){
+                                                          if (add.size() > 0) {//Controls to ensure it is right address such as country etc.
+                                                              double longitude = adds.getLongitude();
+                                                              double latitude = adds.getLatitude();
+                                                              CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude));
+                                                              CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+                                                              LatLng searched = new LatLng(latitude, longitude);
+                                                              mMap.moveCamera(center);
+                                                              mMap.animateCamera(zoom);
 
+
+                                                          }
+                                                      }
+                                                  }
+                                                  catch (      IOException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  return false;
+                                              }
+                                          }
+        );
         return true;
     }
 
