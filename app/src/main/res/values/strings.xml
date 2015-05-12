@@ -12,7 +12,7 @@
     <string name="satellite">Satellite</string>
     <string name="terrain">Terrain</string>
     <string name="hybrid">Hybrid</string>
-    <string name="tenthmi">Display parking within tenth of a mile</string>
+    <string name="tenthmi">Display parking within tenth of a mi</string>
     <string name="quartermi">Display parking within quarter mile</string>
     <string name="halfmi">Display parking within half a mile</string>
     <string name="mi">Display parking within a mile</string>

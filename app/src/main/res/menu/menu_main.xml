@@ -12,11 +12,11 @@
                 <item android:id="@+id/menu_5_choice_1"
                     android:title="@string/tenthmi"
                     app:showAsAction="never"
-                    android:checked="true"/>
+                    />
                 <item android:id="@+id/menu_5_choice_2"
                     android:title="@string/quartermi"
                     app:showAsAction="never"
-                    />
+                    android:checked="true"/>
                 <item android:id="@+id/menu_5_choice_3"
                     android:title="@string/halfmi"
                     app:showAsAction="never"

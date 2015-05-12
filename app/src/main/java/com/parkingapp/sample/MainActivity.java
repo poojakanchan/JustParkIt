@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements
     MarkerOptions marker;
     List<SFParkBean> SfParkBeanList = null;
     DBConnectionHandler dbConnectionHandler;
-    String radius = "0.1";
+    String radius = "0.25";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -327,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements
         List<StreetCleaningDataBean> streetCleanAddress = new ArrayList<StreetCleaningDataBean>();
 
         String[] text = new String[8];
+        String[] text_address = new String[8];
+        String[] text_day = new String[8];
         String[] side = new String[8];
         StringBuilder rightFrom = new StringBuilder();
         StringBuilder rightTo = new StringBuilder();
@@ -374,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements
                             for (StreetCleaningDataBean bean : streetCleanAddress) {
 
                                 StringBuilder sc = new StringBuilder();
+                                StringBuilder sc_day = new StringBuilder();
 
                                 if (bean.getRightLeft().equals("R")) {
                                     sc.append(String.valueOf(bean.getRT_FADD())).append("-")
@@ -404,38 +407,12 @@ public class MainActivity extends AppCompatActivity implements
                                             .append(bean.getZIP_CODE());
                                 }
 
-                                sc.append(bean.getWeekDay() + " Weeks:");
+                                text_address[count - 1] = sc.toString();
+
                                 List<Integer> weekList = new ArrayList<Integer>();
 
-                                if (bean.getWeek1OfMonth().equals("Y")) {
-                                    weekList.add(1);
-                                    sc.append(" 1");
-                                }
-                                if (bean.getWeek2OfMonth().equals("Y")) {
-                                    weekList.add(2);
-                                    sc.append(" 2");
-                                }
-                                if (bean.getWeek3OfMonth().equals("Y")) {
-                                    weekList.add(3);
-                                    sc.append(" 3");
-                                }
-                                if (bean.getWeek4OfMonth().equals("Y")) {
-                                    weekList.add(4);
-                                    sc.append(" 4");
-                                }
-                                if (bean.getWeek5OfMonth().equals("Y")) {
-                                    weekList.add(5);
-                                    sc.append(" 5");
-                                }
-                                sc.append(" \n");
-
-
-                                sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
-                                if (bean.getHolidays().equals("N")) {
-                                    sc.append("No cleaning on holidays \n");
-                                }
                                 // to check if street cleaning is going on currently
-                                String currentInfo = "Street cleaning is not going on currently \n\n";
+                                String currentInfo = "Street cleaning is not going on currently \n";
                                 if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase(bean.getWeekDay())) {
                                     String fromString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getFromHour();
                                     String toString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getToHour();
@@ -445,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements
                                             Date fromDate = parser.parse(fromString);
                                             Date toDate = parser.parse(toString);
                                             if (calendar.getTime().after(fromDate) && calendar.getTime().before(toDate)) {
-                                                currentInfo = "Street cleaning is going on currently \n\n";
+                                                currentInfo = "Street cleaning is going on currently \n";
                                             }
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -454,9 +431,69 @@ public class MainActivity extends AppCompatActivity implements
                                 }
                                 sc.append(currentInfo);
 
+                                sc.append(bean.getWeekDay() + " Weeks:");
+                                sc_day.append(bean.getWeekDay() + " Weeks:");
+
+                                if (bean.getWeek1OfMonth().equals("Y")) {
+                                    weekList.add(1);
+                                    sc.append(" 1");
+                                    sc_day.append(" 1");
+                                }
+                                if (bean.getWeek2OfMonth().equals("Y")) {
+                                    weekList.add(2);
+                                    sc.append(" 2");
+                                    sc_day.append(" 2");
+                                }
+                                if (bean.getWeek3OfMonth().equals("Y")) {
+                                    weekList.add(3);
+                                    sc.append(" 3");
+                                    sc_day.append(" 3");
+                                }
+                                if (bean.getWeek4OfMonth().equals("Y")) {
+                                    weekList.add(4);
+                                    sc.append(" 4");
+                                    sc_day.append(" 4");
+                                }
+                                if (bean.getWeek5OfMonth().equals("Y")) {
+                                    weekList.add(5);
+                                    sc.append(" 5");
+                                    sc_day.append(" 5");
+                                }
+                                sc.append(" \n");
+                                sc_day.append(" \n");
+
+                                sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
+                                sc_day.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
+                                if (bean.getHolidays().equals("N")) {
+                                    sc.append("No cleaning on holidays \n");
+                                    sc_day.append("No cleaning on holidays \n");
+                                }
+
+
                                 text[count - 1] = sc.toString();
-                                Log.d("Data: ", text[count - 1]);
-                                Log.d("Data: ", side[count - 1]);
+                                text_day[count - 1] = sc_day.toString();
+
+                                Log.d("Data:text[count-1] ", text[count - 1]);
+                                Log.d("Data:text_address ", text_address[count - 1]);
+                                Log.d("Data:text_day[count-1] ", text_day[count - 1]);
+                                Log.d("Data:side[count-1] ", side[count - 1]);
+
+                                //check if address was already stored earlier in text[] array
+                                int check ;
+                                int match_found = 0;
+                                for(check = 0; check <= count-2; check++){
+                                    if(text_address[count-1].equals(text_address[check]) && (match_found == 0)){
+                                        Log.d("Data:count-1 ", String.valueOf(count - 1));
+                                        Log.d("Data:check", String.valueOf(check));
+                                        Log.d("Data:text_address[cnt] ", text_address[count - 1]);
+                                        Log.d("Data:text_address[chk] ", text_address[check]);
+                                        Log.d("Data:text_day[count-1] ", text_day[count - 1]);
+                                        Log.d("Data:text[check] ", text[check]);
+                                        text[check] = text[check] + text_day[count-1];
+                                        text[count-1] = "";
+                                        match_found = 1;
+                                    }
+                                }
 
                                 count++;
                                 if (count == 9) {
@@ -638,15 +675,13 @@ public class MainActivity extends AppCompatActivity implements
                 if(marker.getTitle().equals(title)) {
                     for (int i = 0; i < 5; i++) {
                         if (text[i] != null && !text[i].equals("")) {
-                            tvInformation.append(text[i]);
+                            tvInformation.append(text[i]+"\n");
                             Spannable spannableText = (Spannable) tvInformation.getText();
                             if (side[i].equalsIgnoreCase("R")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.MAGENTA), length, length + text[i].length(), 0);
-                                // tvInformation.setTextColor(getResources().getColor(R.color.right));
                             }
                             if (side[i].equalsIgnoreCase("L")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.BLUE), length, length + text[i].length(), 0);
-                                // tvInformation.setTextColor(getResources().getColor(R.color.left));
                             }
                             length = length + text[i].length();
                         }
@@ -1037,9 +1072,7 @@ public class MainActivity extends AppCompatActivity implements
             AlertDialog.Builder helpDialog_1 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_1.setTitle("Street Cleaning Help");
             helpDialog_1.setMessage("-Tap anywhere on the map to place Marker\n" +
-                    "-Tap on the yellow marker to view Street Cleaning Information\n" +
-                    "-The green line that appears on the map corresponds to right side of the street\n" +
-                    "-The blue line that appears on the map corresponds to left side of the street");
+                    "-Tap on the yellow marker to view Street Cleaning Information\n");
             helpDialog_1.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
