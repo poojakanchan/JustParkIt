@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements
                                 StringBuilder sc = new StringBuilder();
                                 StringBuilder sc_day = new StringBuilder();
 
-                                if (bean.getRightLeft().equals("R")) {
+                                if (bean.getRightLeft()!= null &&  bean.getRightLeft().equals("R")) {
                                     sc.append(String.valueOf(bean.getRT_FADD())).append("-")
                                             .append(String.valueOf(bean.getRT_TOADD())).append(" ")
                                             .append(bean.getSTREETNAME()).append("\n");
@@ -392,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements
                                             .append("San Francisco ")
                                             .append(bean.getZIP_CODE());
                                 }
-                                if (bean.getRightLeft().equals("L")) {
+                                if (bean.getRightLeft() != null && bean.getRightLeft().equals("L")) {
                                     sc.append(String.valueOf(bean.getLF_FADD())).append("-")
                                             .append(String.valueOf(bean.getLF_TOADD()))
                                             .append(" ").append(bean.getSTREETNAME()).append("\n");
@@ -434,27 +434,27 @@ public class MainActivity extends AppCompatActivity implements
                                 sc.append(bean.getWeekDay() + " Weeks:");
                                 sc_day.append(bean.getWeekDay() + " Weeks:");
 
-                                if (bean.getWeek1OfMonth().equals("Y")) {
+                                if ("Y".equals(bean.getWeek1OfMonth())) {
                                     weekList.add(1);
                                     sc.append(" 1");
                                     sc_day.append(" 1");
                                 }
-                                if (bean.getWeek2OfMonth().equals("Y")) {
+                                if ("Y".equals(bean.getWeek2OfMonth())) {
                                     weekList.add(2);
                                     sc.append(" 2");
                                     sc_day.append(" 2");
                                 }
-                                if (bean.getWeek3OfMonth().equals("Y")) {
+                                if ("Y".equals(bean.getWeek3OfMonth())) {
                                     weekList.add(3);
                                     sc.append(" 3");
                                     sc_day.append(" 3");
                                 }
-                                if (bean.getWeek4OfMonth().equals("Y")) {
+                                if ("Y".equals(bean.getWeek4OfMonth())) {
                                     weekList.add(4);
                                     sc.append(" 4");
                                     sc_day.append(" 4");
                                 }
-                                if (bean.getWeek5OfMonth().equals("Y")) {
+                                if ("Y".equals(bean.getWeek5OfMonth())) {
                                     weekList.add(5);
                                     sc.append(" 5");
                                     sc_day.append(" 5");
@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements
 
                                 sc.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
                                 sc_day.append(bean.getFromHour() + "-" + bean.getToHour() + "\n");
-                                if (bean.getHolidays().equals("N")) {
+                                if ("N".equals(bean.getHolidays())) {
                                     sc.append("No cleaning on holidays \n");
                                     sc_day.append("No cleaning on holidays \n");
                                 }
@@ -677,10 +677,10 @@ public class MainActivity extends AppCompatActivity implements
                         if (text[i] != null && !text[i].equals("")) {
                             tvInformation.append(text[i]+"\n");
                             Spannable spannableText = (Spannable) tvInformation.getText();
-                            if (side[i].equalsIgnoreCase("R")) {
+                            if (side[i]!= null && side[i].equalsIgnoreCase("R")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.MAGENTA), length, length + text[i].length(), 0);
                             }
-                            if (side[i].equalsIgnoreCase("L")) {
+                            if (side[i] != null && side[i].equalsIgnoreCase("L")) {
                                 spannableText.setSpan(new ForegroundColorSpan(Color.BLUE), length, length + text[i].length(), 0);
                             }
                             length = length + text[i].length();
