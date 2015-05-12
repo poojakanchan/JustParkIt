@@ -850,7 +850,15 @@ public class MainActivity extends AppCompatActivity implements
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
         // using geocode to find user entered addresses
+
+
+
+
+
+
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+                                              MarkerOptions markerOptions = null;
                                               public boolean onQueryTextChange(    String text){
                                                   return false;
                                               }
@@ -862,11 +870,18 @@ public class MainActivity extends AppCompatActivity implements
                                                           if (add.size() > 0) {//Controls to ensure it is right address such as country etc.
                                                               double longitude = adds.getLongitude();
                                                               double latitude = adds.getLatitude();
-                                                              CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude));
-                                                              CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
                                                               LatLng searched = new LatLng(latitude, longitude);
-                                                              mMap.moveCamera(center);
-                                                              mMap.animateCamera(zoom);
+                                                              //markerOptions.position(searched);
+                                                              //markerOptions.title("Your destination");
+                                                              //mMap.addMarker(markerOptions);
+                                                              if(searched!=null) {
+                                                                  CameraUpdate center = CameraUpdateFactory.newLatLng(searched);
+                                                                  CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+
+                                                                  mMap.moveCamera(center);
+                                                                  mMap.animateCamera(zoom);
+                                                              }
+
 
 
                                                           }
