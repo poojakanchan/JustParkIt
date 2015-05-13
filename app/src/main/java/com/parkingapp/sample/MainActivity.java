@@ -1092,7 +1092,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     mMap.clear();
-                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -1101,7 +1101,7 @@ public class MainActivity extends AppCompatActivity implements
             theDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_LONG).show();
 
                 }
             });
