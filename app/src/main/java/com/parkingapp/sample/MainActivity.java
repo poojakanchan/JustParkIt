@@ -414,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements
                                 List<Integer> weekList = new ArrayList<Integer>();
 
                                 // to check if street cleaning is going on currently
-                                String currentInfo = "Street cleaning is not going on currently \n";
+                                String currentInfo = "Street cleaning:\nNot going on currently \n";
                                 if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase(bean.getWeekDay())) {
                                     String fromString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getFromHour();
                                     String toString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getToHour();
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements
                                             Date fromDate = parser.parse(fromString);
                                             Date toDate = parser.parse(toString);
                                             if (calendar.getTime().after(fromDate) && calendar.getTime().before(toDate)) {
-                                                currentInfo = "Street cleaning is going on currently \n";
+                                                currentInfo = "Street cleaning:\nGoing on currently \n";
                                             }
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -857,16 +857,18 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                                               MarkerOptions markerOptions = null;
-                                              public boolean onQueryTextChange(    String text){
+
+                                              public boolean onQueryTextChange(String text) {
                                                   return false;
                                               }
-                                              public boolean onQueryTextSubmit(    String text){
-                                                  Geocoder geo=new Geocoder(getApplicationContext());
+
+                                              public boolean onQueryTextSubmit(String text) {
+                                                  Geocoder geo = new Geocoder(getApplicationContext());
                                                   try {
-                                                      List<Address> add=geo.getFromLocationName(text,1);
-                                                      for(Address adds : add){
+                                                      List<Address> add = geo.getFromLocationName(text, 1);
+                                                      for (Address adds : add) {
                                                           if (add.size() > 0) {//Controls to ensure it is right address such as country etc.
                                                               double longitude = adds.getLongitude();
                                                               double latitude = adds.getLatitude();
@@ -874,7 +876,7 @@ public class MainActivity extends AppCompatActivity implements
                                                               //markerOptions.position(searched);
                                                               //markerOptions.title("Your destination");
                                                               //mMap.addMarker(markerOptions);
-                                                              if(searched!=null) {
+                                                              if (searched != null) {
                                                                   CameraUpdate center = CameraUpdateFactory.newLatLng(searched);
                                                                   CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
 
@@ -883,11 +885,9 @@ public class MainActivity extends AppCompatActivity implements
                                                               }
 
 
-
                                                           }
                                                       }
-                                                  }
-                                                  catch (      IOException e) {
+                                                  } catch (IOException e) {
                                                       e.printStackTrace();
                                                   }
                                                   return false;
