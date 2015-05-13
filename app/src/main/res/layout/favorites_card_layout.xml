@@ -24,6 +24,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/marker_snippet"
                 android:layout_alignParentTop="true"
+                android:clickable="true"
+                android:onClick="showMoreInfo"
                 android:textSize="20sp"
                 />
 

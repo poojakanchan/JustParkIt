@@ -1,7 +1,120 @@
 package com.parkingapp.sample;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.ContextWrapper;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
+import android.view.View;
+
+import com.example.pooja.sfparksample.R;
+import com.google.android.gms.maps.model.*;
+import com.parkingapp.database.FavoritesConnectionHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Omar on 5/13/2015.
  */
-public class RecyclerViewActivity {
+public class RecyclerViewActivity extends AppCompatActivity {
+
+    private List<Marker> markers;
+    private RecyclerView rv;
+    FavoritesConnectionHandler favoritesConnectionHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.recyclerview_activity);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        rv=(RecyclerView)findViewById(R.id.rv);
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        rv.setLayoutManager(llm);
+        rv.setHasFixedSize(true);
+
+        initializeData();
+        initializeAdapter();
+    }
+
+    private void initializeData(){
+        ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
+        favoritesConnectionHandler = FavoritesConnectionHandler.getDBHandler(contextWrapper);
+
+        if (favoritesConnectionHandler.numberOfRows() <= 4) {
+            String test_string1 = favoritesConnectionHandler.getData(1);
+            String test_string2 = favoritesConnectionHandler.getData(2);
+            String test_string3 = favoritesConnectionHandler.getData(3);
+            String test_string4 = favoritesConnectionHandler.getData(4);
+            markers = new ArrayList<>();
+            markers.add(new Marker(test_string1));
+            markers.add(new Marker(test_string2));
+            markers.add(new Marker(test_string3));
+            markers.add(new Marker(test_string4));
+        } else {
+            String test_string1 = favoritesConnectionHandler.getData(1);
+            String test_string2 = favoritesConnectionHandler.getData(2);
+            String test_string3 = favoritesConnectionHandler.getData(3);
+            String test_string4 = favoritesConnectionHandler.getData(4);
+            markers = new ArrayList<>();
+            markers.add(new Marker(test_string1));
+            markers.add(new Marker(test_string2));
+            markers.add(new Marker(test_string3));
+            markers.add(new Marker(test_string4));
+        }
+    }
+
+    private void initializeAdapter(){
+        RVAdapter adapter = new RVAdapter(markers);
+        rv.setAdapter(adapter);
+    }
+
+    public void showMoreInfo(View view) {
+        DialogFragment myFragment = new FavoriteInformation();
+        myFragment.show(getFragmentManager(), "favInfoDialog");
+    }
+
+    public static class FavoriteInformation extends DialogFragment {
+        /*String mStr;
+        static FavoriteInformation newInstance(String str) {
+            FavoriteInformation f = new FavoriteInformation();
+
+            Bundle args = new Bundle();
+            args.putString("str", str);
+            f.setArguments(args);
+
+            return f;
+        }*/
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder favInfoDialog = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
+            favInfoDialog.setTitle("TEST DIALOG");
+            favInfoDialog.setMessage("Test for the test that I'm testing for the test of the test.");
+            favInfoDialog.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            return favInfoDialog.create();
+        }
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+
+        if (id==android.R.id.home) {
+            finish();
+        }
+        return true;
+
+    }
 }

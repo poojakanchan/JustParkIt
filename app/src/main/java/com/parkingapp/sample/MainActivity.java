@@ -1038,7 +1038,7 @@ public class MainActivity extends AppCompatActivity implements
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                         Toast.makeText(getApplicationContext(),
-                                "Failed to add favorites!",
+                                "Failed to add favorite spot.",
                                 Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -1064,7 +1064,7 @@ public class MainActivity extends AppCompatActivity implements
 
         //when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
         if (id == R.id.action_view_favorites) {
-            Intent intent = new Intent(this, DisplayFavorites.class);
+            Intent intent = new Intent(this, RecyclerViewActivity.class);
             startActivity(intent);
             return true;
         }
@@ -1194,7 +1194,6 @@ public class MainActivity extends AppCompatActivity implements
                 public void onClick(DialogInterface dialogInterface, int i) {
                 }
             });
-
             return helpDialog_1.create();
         }
     }
