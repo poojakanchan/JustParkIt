@@ -66,6 +66,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.database.DBConnectionHandler;
+import com.parkingapp.database.FavoritesConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.OperationHoursBean;
 import com.parkingapp.parser.RatesBean;
@@ -104,9 +105,12 @@ public class MainActivity extends AppCompatActivity implements
     List<SFParkBean> SfParkBeanList = null;
     DBConnectionHandler dbConnectionHandler;
     String radius = "0.25";
+    List<Marker> markers = new ArrayList<>();
+    FavoritesConnectionHandler fdb;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fdb = new FavoritesConnectionHandler(this);
 
         if (checkPlayServices()) {
             buildGoogleApiClient();
@@ -265,6 +269,18 @@ public class MainActivity extends AppCompatActivity implements
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                markers.add(marker);
+                if(marker.isInfoWindowShown()) {
+                    marker.hideInfoWindow();
+                } else {
+                    marker.showInfoWindow();
+                }
+                return true;
+            }
+        });
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
@@ -530,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void drawLine(String rightFrom, String rightTo, String leftFrom, String leftTo) {
-        Log.d("method:","Drawline method called");
+        Log.d("method:", "Drawline method called");
         Geocoder geocoder = new Geocoder(getApplicationContext());
         Geocoder.isPresent();
         try {
@@ -851,22 +867,18 @@ public class MainActivity extends AppCompatActivity implements
         searchView.setIconifiedByDefault(false);
         // using geocode to find user entered addresses
 
-
-
-
-
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                                               MarkerOptions markerOptions = null;
-                                              public boolean onQueryTextChange(    String text){
+
+                                              public boolean onQueryTextChange(String text) {
                                                   return false;
                                               }
-                                              public boolean onQueryTextSubmit(    String text){
-                                                  Geocoder geo=new Geocoder(getApplicationContext());
+
+                                              public boolean onQueryTextSubmit(String text) {
+                                                  Geocoder geo = new Geocoder(getApplicationContext());
                                                   try {
-                                                      List<Address> add=geo.getFromLocationName(text,1);
-                                                      for(Address adds : add){
+                                                      List<Address> add = geo.getFromLocationName(text, 1);
+                                                      for (Address adds : add) {
                                                           if (add.size() > 0) {//Controls to ensure it is right address such as country etc.
                                                               double longitude = adds.getLongitude();
                                                               double latitude = adds.getLatitude();
@@ -874,7 +886,7 @@ public class MainActivity extends AppCompatActivity implements
                                                               //markerOptions.position(searched);
                                                               //markerOptions.title("Your destination");
                                                               //mMap.addMarker(markerOptions);
-                                                              if(searched!=null) {
+                                                              if (searched != null) {
                                                                   CameraUpdate center = CameraUpdateFactory.newLatLng(searched);
                                                                   CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
 
@@ -883,11 +895,9 @@ public class MainActivity extends AppCompatActivity implements
                                                               }
 
 
-
                                                           }
                                                       }
-                                                  }
-                                                  catch (      IOException e) {
+                                                  } catch (IOException e) {
                                                       e.printStackTrace();
                                                   }
                                                   return false;
@@ -1013,7 +1023,31 @@ public class MainActivity extends AppCompatActivity implements
         }
         //when user clicks Favorites button, the current parking info will be stored in database
         if (id == R.id.action_favorites) {
+            if (markers != null & !markers.isEmpty()) {
+                String test_string;
+                Marker currentMarker = markers.get(markers.size()-1);
 
+                test_string = currentMarker.getTitle();
+                //Toast.makeText(getApplicationContext(),
+                //        test_string,
+                //        Toast.LENGTH_SHORT).show();
+                DialogFragment myFragment = new AddToFavoritesDialog();
+                myFragment.show(getFragmentManager(), "testDialog");
+                    try {
+                        fdb.insertFavorite(test_string);
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Failed to add favorites!",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                Toast.makeText(getApplicationContext(),
+                        "Please tap the marker you'd like to save",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            /*
             try {
                 if (SfParkBeanList != null && SfParkBeanList.size() != 0) {
                     dbConnectionHandler.insertParkingInfo(SfParkBeanList);
@@ -1025,11 +1059,12 @@ public class MainActivity extends AppCompatActivity implements
                 e.printStackTrace();
                 Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
             }
+            */
         }
 
         //when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
         if (id == R.id.action_view_favorites) {
-            Intent intent = new Intent(this, DisplayFavorite.class);
+            Intent intent = new Intent(this, DisplayFavorites.class);
             startActivity(intent);
             return true;
         }
@@ -1073,6 +1108,37 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
+
+    /**
+     *
+     */
+    public static class AddToFavoritesDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder testDialog = new AlertDialog.Builder(getActivity(),
+                    R.style.DialogTheme);
+            testDialog.setTitle("Add to favorites?");
+            testDialog.setMessage("Would you like to add the current marker to favorites?");
+            testDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getActivity(),
+                            "Added to favorites!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            testDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getActivity(),
+                            "Cancelled",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            return testDialog.create();
+        }
+    }
+
 
     /**
      * This is an inner class used to created a dialog fragment when users
