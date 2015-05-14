@@ -1229,12 +1229,11 @@ public class MainActivity extends AppCompatActivity implements
 
             AlertDialog.Builder helpDialog_3 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_3.setTitle("Add to Favorites Help");
-            helpDialog_3.setMessage("-Long press anywhere on the map to place Marker\n" +
-                    "-Tap on the blue marker to view if Parking Information is found\n" +
-                    "-If Parking data is found and you would like to add to favorites,\n" +
-                    "tap the star icon in the action bar and parking data will be saved.\n" +
-                    "-To view your favorite parking spots go to View Favorites tab in the action overflow\n" +
-                    "-To delete parking spots long press on the data and click Delete from favorites");
+            helpDialog_3.setMessage( "-Tap on the screen to create a marker\n" +
+                    "-If you would like to add to favorites,\n" +
+                    "tap the star icon in the action bar and parking data will be saved once you select the yes option\n" +
+                    "on the dialog alert message\n"+
+                    "-To view your favorite parking spots go to View Favorites tab in the action overflow\n" );
             helpDialog_3.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
