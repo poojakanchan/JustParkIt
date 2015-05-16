@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Created by nayanakamath on 4/24/15.
- * Class handles DataBase connection and queries to SQLite.
+ * Singleton class handles DataBase connection and queries to SQLite.
  * /
 
  /*
@@ -61,6 +61,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         this.context=context;
     }
 
+    /**
+     * static method to get an instance of DBConnectionHandler class.
+     * @param context
+     * @return
+     */
     public static DBConnectionHandler getDBHandler(Context context){
         if(dbConnectionHandler == null){
             dbConnectionHandler = new DBConnectionHandler(context);
@@ -99,6 +104,12 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * method which is called once when the app is loaded for the first time.
+     * In this method, tables  PARKING_FAVORITES and STREETCLEANING are created and street cleaning.csv file is parsed and
+     * loaded into table STREETCLEANING table
+     * @param db database to be used for the operations.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
    //    db.execSQL("DROP TABLE " + PARKING_FAVORITES_TABLE_NAME);
@@ -122,7 +133,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean check_TableIsNull(SQLiteDatabase db,String TABLE_NAME) {
+    private boolean check_TableIsNull(SQLiteDatabase db,String TABLE_NAME) {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME + "", null);
         if (cursor != null) {
             cursor.moveToFirst();

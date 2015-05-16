@@ -1,8 +1,8 @@
 package com.parkingapp.utility;
 
 /**
+ * Stores all the constant values of the app.
  * Created by pooja on 4/13/2015.
- * contains all the constant values
  */
 public class Constants {
 

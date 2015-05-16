@@ -25,21 +25,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by pooja on 4/13/2015.
- * Singleton class for REST connection handling
+ * abstract class for REST connection handling
  */
-public class RESTConnectionHandler {
+public abstract class RESTConnectionHandler {
 
 //  Same class should be used for calling both google maps and SF park APIs.
-
-    private static RESTConnectionHandler restHandler ;
-    private RESTConnectionHandler() {
-           }
-
-    public static RESTConnectionHandler getRESTConnectionHandler() {
-        if(restHandler == null)
-                restHandler = new RESTConnectionHandler();
-        return restHandler;
-    }
 
     /**
      * generates REST URL for passed URI parameters.

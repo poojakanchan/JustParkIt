@@ -11,7 +11,7 @@ import java.util.List;
  * Created by pooja on 4/13/2015.
  *  Class to handle SF PARK APIs
  */
-public class SFParkHandler {
+public class SFParkHandler extends RESTConnectionHandler{
 
     /**
      * calls SF API availability service to check  available parking spots within the given radius of the given location.
@@ -31,10 +31,9 @@ public class SFParkHandler {
         parameters.add("method=availability");
         parameters.add("response=xml");
         parameters.add("pricing=yes");
-        RESTConnectionHandler restHandler = RESTConnectionHandler.getRESTConnectionHandler();
 
-        String url = restHandler.generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
-        return restHandler.connect(url);
+        String url = generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
+        return connect(url);
         //StringBuilder response =  restHandler.connect(url);
         //return response;
     }

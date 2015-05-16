@@ -1,6 +1,8 @@
 package com.parkingapp.parser;
 
 /**
+ * Bean class to store rating information of parking locations returned by SFPark API availability service
+ * Setters and getters are provided for each field of the class.
  * Created by pooja on 5/11/2015.
  */
 public class RatesBean {

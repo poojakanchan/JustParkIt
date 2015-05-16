@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * class for XML parsing
+ * class implements DOM based XML parser to parse SFParkAPI availability service response.
  * Created by pooja on 4/17/2015.
  */
 public class SfXmlParser {
@@ -43,7 +43,7 @@ public class SfXmlParser {
     }
 
     /*
-     * parser given XML and returns the ArrayList containing parsed data
+     * parses given XML and returns the ArrayList containing parsed data
      * @return an arraylist containing list of parking locations
      */
     public List<SFParkBean> parseXML() {
@@ -180,5 +180,4 @@ public class SfXmlParser {
         }
         return ratesBeanList;
     }
-
 }

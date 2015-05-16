@@ -3,6 +3,8 @@ package com.parkingapp.parser;
 import java.util.List;
 
 /**
+ * Bean class to store parking locations returned by SFPark availability service.
+ * Getters and setters are provided for each field in the class.
  * Created by pooja on 4/17/2015.
  */
 public class SFParkBean {

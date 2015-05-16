@@ -11,13 +11,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
+ * class to parse CSV file and convert into SQL file
  * Created by pooja, nayanakamath on 4/25/2015.
-
  */
 public class CsvParser {
     public static final String INSERT_QUERY ="INSERT INTO StreetCleaning (WeekDay, RightLeft, Corridor, FromHour," +
             "ToHour, Holidays, Week1OfMonth, Week2OfMonth, Week3OfMonth, Week4OfMonth, Week5OfMonth," +
             "LF_FADD, LF_TOADD, RT_TOADD, RT_FADD, STREETNAME, ZIP_CODE, NHOOD)  VALUES (";
+
+    /**
+     * parses Street_Sweeping_full.csv file and build SQL insert statements and store them in a new street_cleaning.sql file
+     * @throws ParkingAppException
+     */
     public void parseCSV() throws ParkingAppException{
         try{
             FileReader fileReader =

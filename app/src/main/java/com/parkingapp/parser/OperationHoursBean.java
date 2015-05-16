@@ -1,6 +1,8 @@
 package com.parkingapp.parser;
 
 /**
+ * Bean class to store operation hours of paring location returned by SFParkAPi availability service.
+ * The getters and setters are provided for each field.
  * Created by pooja on 4/17/2015.
  */
 public class OperationHoursBean {
