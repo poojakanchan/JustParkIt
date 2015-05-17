@@ -66,6 +66,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parkingapp.connection.SFParkHandler;
 import com.parkingapp.database.DBConnectionHandler;
+import com.parkingapp.database.FavoritesConnectionHandler;
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.OperationHoursBean;
 import com.parkingapp.parser.RatesBean;
@@ -104,9 +105,12 @@ public class MainActivity extends AppCompatActivity implements
     List<SFParkBean> SfParkBeanList = null;
     DBConnectionHandler dbConnectionHandler;
     String radius = "0.25";
+    List<Marker> markers = new ArrayList<>();
+    FavoritesConnectionHandler fdb;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fdb = new FavoritesConnectionHandler(this);
 
         if (checkPlayServices()) {
             buildGoogleApiClient();
@@ -265,6 +269,18 @@ public class MainActivity extends AppCompatActivity implements
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                markers.add(marker);
+                if(marker.isInfoWindowShown()) {
+                    marker.hideInfoWindow();
+                } else {
+                    marker.showInfoWindow();
+                }
+                return true;
+            }
+        });
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
@@ -414,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements
                                 List<Integer> weekList = new ArrayList<Integer>();
 
                                 // to check if street cleaning is going on currently
-                                String currentInfo = "Street cleaning:\nNot going on currently \n";
+                                String currentInfo = "Street cleaning is not going on currently \n";
                                 if (weekList.contains(currWeek) && currDayOfWeek != null && currDayOfWeek.equalsIgnoreCase(bean.getWeekDay())) {
                                     String fromString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getFromHour();
                                     String toString = calendar.get(Calendar.DATE) + ":" + (calendar.get(Calendar.MONTH) + 1) + ":" + calendar.get(Calendar.YEAR) + ":" + bean.getToHour();
@@ -424,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements
                                             Date fromDate = parser.parse(fromString);
                                             Date toDate = parser.parse(toString);
                                             if (calendar.getTime().after(fromDate) && calendar.getTime().before(toDate)) {
-                                                currentInfo = "Street cleaning:\nGoing on currently \n";
+                                                currentInfo = "Street cleaning is going on currently \n";
                                             }
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -530,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void drawLine(String rightFrom, String rightTo, String leftFrom, String leftTo) {
-        Log.d("method:","Drawline method called");
+        Log.d("method:", "Drawline method called");
         Geocoder geocoder = new Geocoder(getApplicationContext());
         Geocoder.isPresent();
         try {
@@ -851,12 +867,6 @@ public class MainActivity extends AppCompatActivity implements
         searchView.setIconifiedByDefault(false);
         // using geocode to find user entered addresses
 
-
-
-
-
-
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                                               MarkerOptions markerOptions = null;
 
@@ -1013,7 +1023,31 @@ public class MainActivity extends AppCompatActivity implements
         }
         //when user clicks Favorites button, the current parking info will be stored in database
         if (id == R.id.action_favorites) {
+            if (markers != null & !markers.isEmpty()) {
+                String test_string;
+                Marker currentMarker = markers.get(markers.size()-1);
 
+                test_string = currentMarker.getTitle();
+                //Toast.makeText(getApplicationContext(),
+                //        test_string,
+                //        Toast.LENGTH_SHORT).show();
+                DialogFragment myFragment = new AddToFavoritesDialog();
+                myFragment.show(getFragmentManager(), "testDialog");
+                    try {
+                        fdb.insertFavorite(test_string);
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Failed to add favorite spot.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                Toast.makeText(getApplicationContext(),
+                        "Please tap the marker you'd like to save",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            /*
             try {
                 if (SfParkBeanList != null && SfParkBeanList.size() != 0) {
                     dbConnectionHandler.insertParkingInfo(SfParkBeanList);
@@ -1025,11 +1059,12 @@ public class MainActivity extends AppCompatActivity implements
                 e.printStackTrace();
                 Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
             }
+            */
         }
 
         //when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
         if (id == R.id.action_view_favorites) {
-            Intent intent = new Intent(this, DisplayFavorite.class);
+            Intent intent = new Intent(this, RecyclerViewActivity.class);
             startActivity(intent);
             return true;
         }
@@ -1075,6 +1110,37 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     *
+     */
+    public static class AddToFavoritesDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder testDialog = new AlertDialog.Builder(getActivity(),
+                    R.style.DialogTheme);
+            testDialog.setTitle("Add to favorites?");
+            testDialog.setMessage("Would you like to add the current marker to favorites?");
+            testDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getActivity(),
+                            "Added to favorites!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            testDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getActivity(),
+                            "Cancelled",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            return testDialog.create();
+        }
+    }
+
+
+    /**
      * This is an inner class used to created a dialog fragment when users
      * click the Clear Markers Tab in the action overflow
      */
@@ -1092,7 +1158,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     mMap.clear();
-                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Markers Cleared", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -1101,7 +1167,7 @@ public class MainActivity extends AppCompatActivity implements
             theDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Clear Canceled", Toast.LENGTH_SHORT).show();
 
                 }
             });
@@ -1128,7 +1194,6 @@ public class MainActivity extends AppCompatActivity implements
                 public void onClick(DialogInterface dialogInterface, int i) {
                 }
             });
-
             return helpDialog_1.create();
         }
     }
@@ -1164,12 +1229,11 @@ public class MainActivity extends AppCompatActivity implements
 
             AlertDialog.Builder helpDialog_3 = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             helpDialog_3.setTitle("Add to Favorites Help");
-            helpDialog_3.setMessage("-Long press anywhere on the map to place Marker\n" +
-                    "-Tap on the blue marker to view if Parking Information is found\n" +
-                    "-If Parking data is found and you would like to add to favorites,\n" +
-                    "tap the star icon in the action bar and parking data will be saved.\n" +
-                    "-To view your favorite parking spots go to View Favorites tab in the action overflow\n" +
-                    "-To delete parking spots long press on the data and click Delete from favorites");
+            helpDialog_3.setMessage( "-Tap on the screen to create a marker\n" +
+                    "-If you would like to add to favorites,\n" +
+                    "tap the star icon in the action bar and parking data will be saved once you select the yes option\n" +
+                    "on the dialog alert message\n"+
+                    "-To view your favorite parking spots go to View Favorites tab in the action overflow\n" );
             helpDialog_3.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
