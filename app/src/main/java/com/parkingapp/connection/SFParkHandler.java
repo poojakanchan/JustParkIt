@@ -2,10 +2,8 @@ package com.parkingapp.connection;
 
 import com.parkingapp.exception.ParkingAppException;
 import com.parkingapp.parser.SFParkBean;
-import com.parkingapp.parser.SfXmlParser;
 import com.parkingapp.utility.Constants;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +11,7 @@ import java.util.List;
  * Created by pooja on 4/13/2015.
  *  Class to handle SF PARK APIs
  */
-public class SFParkHandler {
+public class SFParkHandler extends RESTConnectionHandler{
 
     /**
      * calls SF API availability service to check  available parking spots within the given radius of the given location.
@@ -32,10 +30,10 @@ public class SFParkHandler {
         parameters.add("uom=mile");
         parameters.add("method=availability");
         parameters.add("response=xml");
-        RESTConnectionHandler restHandler = RESTConnectionHandler.getRESTConnectionHandler();
+        parameters.add("pricing=yes");
 
-        String url = restHandler.generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
-        return restHandler.connect(url);
+        String url = generateURL(Constants.SF_PARK_URI + Constants.SF_PARK_AVAILABILITY_SERVICE, parameters);
+        return connect(url);
         //StringBuilder response =  restHandler.connect(url);
         //return response;
     }

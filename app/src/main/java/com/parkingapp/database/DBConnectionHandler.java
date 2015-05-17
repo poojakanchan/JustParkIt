@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Created by nayanakamath on 4/24/15.
- * Class handles DataBase connection and queries to SQLite.
+ * Singleton class handles DataBase connection and queries to SQLite.
  * /
 
  /*
@@ -38,7 +38,7 @@ import java.util.List;
  * 2. Nayana Kamath
  * Solved issue with repeated entries into database
  * Added whole SF Street Cleaning data into StreetCleaning table
- *
+ * Solved issue with Streetnames having "'" like O'Farrell street
  */
 
 
@@ -61,6 +61,11 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         this.context=context;
     }
 
+    /**
+     * static method to get an instance of DBConnectionHandler class.
+     * @param context application context to be used
+     * @return static instance of the class.
+     */
     public static DBConnectionHandler getDBHandler(Context context){
         if(dbConnectionHandler == null){
             dbConnectionHandler = new DBConnectionHandler(context);
@@ -99,11 +104,19 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * method which is called once when the app is loaded for the first time.
+     * In this method, tables  PARKING_FAVORITES and STREETCLEANING are created and street cleaning.csv file is parsed and
+     * loaded into table STREETCLEANING table
+     * @param db database to be used for the operations.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
    //    db.execSQL("DROP TABLE " + PARKING_FAVORITES_TABLE_NAME);
         db.execSQL(" CREATE TABLE IF NOT EXISTS "+ TABLE_NAME+"(WeekDay VARCHAR, RightLeft VARCHAR, Corridor VARCHAR, FromHour VARCHAR, ToHour VARCHAR, Holidays CHAR, Week1OfMonth CHAR, Week2OfMonth CHAR, Week3OfMonth CHAR, Week4OfMonth CHAR, Week5OfMonth CHAR, LF_FADD NUMBER, LF_TOADD NUMBER, RT_TOADD NUMBER, RT_FADD NUMBER, STREETNAME VARCHAR, ZIP_CODE NUMBER, NHOOD VARCHAR);");
         db.execSQL(" CREATE TABLE IF NOT EXISTS "+ PARKING_FAVORITES_TABLE_NAME+"(name  VARCHAR PRIMARY KEY, type VARCHAR, address VARCHAR, Contact VARCHAR, oprhours VARCHAR, latitude NUMBER, longitude NUMBER);");
+
+        db.execSQL("CREATE INDEX IF NOT EXISTS street_cleaning_index ON " + TABLE_NAME + "(STREETNAME, ZIP_CODE);");
 
         // Checks if Table is Null
         if(check_TableIsNull(db,TABLE_NAME)) {
@@ -122,7 +135,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean check_TableIsNull(SQLiteDatabase db,String TABLE_NAME) {
+    private boolean check_TableIsNull(SQLiteDatabase db,String TABLE_NAME) {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME + "", null);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -141,7 +154,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
     public ArrayList<StreetCleaningDataBean> getRequiredAddress(Number SUBSTREET, String STREETNAME, Number ZIP_CODE) {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         ArrayList<StreetCleaningDataBean> getAddress = new ArrayList<>();
-        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME +"'and ZIP_CODE="+ZIP_CODE
+        String selectQuery = "SELECT * FROM "+TABLE_NAME+" where STREETNAME='"+ STREETNAME.replaceAll("'","/") +"'and ZIP_CODE="+ZIP_CODE
                 +" and ((LF_FADD <="+SUBSTREET + " and LF_TOADD >="+SUBSTREET + ") or (RT_FADD <="+SUBSTREET + " and RT_TOADD >="+SUBSTREET + "))";
 
          Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -281,7 +294,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
      */
     public List<SFParkBean> getFavouriteParkingSpots() {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        ArrayList<SFParkBean> SFParkBeanList = new ArrayList<SFParkBean>();
+        ArrayList<SFParkBean> SFParkBeanList = new ArrayList<>();
         String selectQuery = "SELECT * FROM "+PARKING_FAVORITES_TABLE_NAME;
         Cursor c = sqLiteDatabase.rawQuery(selectQuery, null);
         if (c.moveToFirst()) {
@@ -297,7 +310,7 @@ public class DBConnectionHandler extends SQLiteOpenHelper {
                 String oprHours = c.getString(4);
                if(oprHours !=  null && !oprHours.isEmpty()) {
                    String[] oprArray = oprHours.split(";");
-                    List<OperationHoursBean> oprList = new ArrayList<OperationHoursBean>();
+                    List<OperationHoursBean> oprList = new ArrayList<>();
                    for (String opr : oprArray) {
                        OperationHoursBean oprBean = new OperationHoursBean();
                        String[] hours = opr.split(",");

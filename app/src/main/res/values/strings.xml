@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Just Park It</string>
+    <string name="search_hint">Enter address</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Parking Radius Settings</string>
     <string name="title_activity_maps">Map</string>
     <string name="location">Location</string>
     <string name="get_data">Get Data</string>
@@ -12,6 +13,10 @@
     <string name="satellite">Satellite</string>
     <string name="terrain">Terrain</string>
     <string name="hybrid">Hybrid</string>
+    <string name="tenthmi">Display parking within tenth of a mi</string>
+    <string name="quartermi">Display parking within quarter mile</string>
+    <string name="halfmi">Display parking within half a mile</string>
+    <string name="mi">Display parking within a mile</string>
     <string name="action_clear">Clear Markers</string>
     <string name="action_gps">Go to Current Location</string>
     <string name="action_help">Help</string>
@@ -20,6 +25,7 @@
     <string name="add_to_favorites_help">Add To Favorites Help</string>
     <string name="action_favorites">Add To Favorites</string>
     <string name="action_view_favorites">View Favorites</string>
-    <string name="title_activity_display_favorite">DisplayFavorite</string>
+    <string name="title_activity_display_favorite">Favorite Spots</string>
     <string name="lblBtnDel">Delete Selected Items</string>
+    <string name="Radius">Show nearby spots</string>
 </resources>

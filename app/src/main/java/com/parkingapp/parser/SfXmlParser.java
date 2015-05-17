@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * class for XML parsing
+ * class implements DOM based XML parser to parse SFParkAPI availability service response.
  * Created by pooja on 4/17/2015.
  */
 public class SfXmlParser {
@@ -21,10 +21,6 @@ public class SfXmlParser {
     private DocumentBuilder db;
 
     private Document document;
-
-    public Document getDocument() {
-        return document;
-    }
 
     public void setDocument(Document document) {
         this.document = document;
@@ -36,7 +32,6 @@ public class SfXmlParser {
 
     public void createParser() {
 
-        Document dom = null;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             db = dbf.newDocumentBuilder();
@@ -48,7 +43,7 @@ public class SfXmlParser {
     }
 
     /*
-     * parser given XML and returns the ArrayList containing parsed data
+     * parses given XML and returns the ArrayList containing parsed data
      * @return an arraylist containing list of parking locations
      */
     public List<SFParkBean> parseXML() {
@@ -80,9 +75,19 @@ public class SfXmlParser {
         String address  = getTextValue(sfparkEl,Constants.XML_TAG_DESC);
         String contactNumber  = getTextValue(sfparkEl,Constants.XML_TAG_TEL);
         String location = getTextValue(sfparkEl,Constants.XML_TAG_LOC);
+        String occ = getTextValue(sfparkEl,Constants.XML_TAG_OCCUPIED);
+        int occNumber = 0;
+        if(occ != null) {
+            occNumber = Integer.parseInt(occ);
+        }
+        String oper = getTextValue(sfparkEl,Constants.XML_TAG_OPERATIONAL);
+        int operNumber = 0;
+        if(oper != null) {
+            operNumber = Integer.parseInt(oper);
+        }
         double latitude = 0;
         double longitude = 0;
-        if(location != null || !location.isEmpty())
+        if(location != null && !location.isEmpty())
         {
             String[] locations = location.split(",");
 
@@ -98,6 +103,8 @@ public class SfXmlParser {
     /*    System.out.println("name  " + name + " address " + address + "contact   " + contactNumber + " latitude " + latitude
                 + " longitude " + longitude);
 */
+        List<RatesBean> ratesList = getRates(sfparkEl);
+
         SFParkBean sfParkBean = new SFParkBean();
         sfParkBean.setType(type);
         sfParkBean.setName(name);
@@ -106,7 +113,9 @@ public class SfXmlParser {
         sfParkBean.setLatitude(latitude);
         sfParkBean.setLongitude(longitude);
         sfParkBean.setOperationHours(oprHourList);
-
+        sfParkBean.setOcc(occNumber);
+        sfParkBean.setOper(operNumber);
+        sfParkBean.setRatesBeanList(ratesList);
         return sfParkBean;
     }
     private String getTextValue(Element ele, String tagName) {
@@ -123,7 +132,7 @@ public class SfXmlParser {
     private List<OperationHoursBean> getOprHours(Element ele) {
 
        List<OperationHoursBean> oprBeanList = new ArrayList<OperationHoursBean>();
-        NodeList nl = ele.getElementsByTagName("OPS");
+        NodeList nl = ele.getElementsByTagName(Constants.XML_TAG_OPS);
         if(nl != null && nl.getLength() > 0) {
             for(int i = 0 ; i < nl.getLength();i++) {
                 //get the element
@@ -143,4 +152,32 @@ public class SfXmlParser {
         return oprBeanList;
     }
 
+    private List<RatesBean> getRates(Element ele) {
+
+        List<RatesBean> ratesBeanList = new ArrayList<RatesBean>();
+        NodeList nl = ele.getElementsByTagName(Constants.XML_TAG_RATE_SCHEDULE);
+        if(nl != null && nl.getLength() > 0) {
+            for(int i = 0 ; i < nl.getLength();i++) {
+                //get the element
+                Element e = (Element)nl.item(i);
+                String begin = getTextValue(e,Constants.XML_TAG_BEG);
+                String end = getTextValue(e,Constants.XML_TAG_END);
+                String rate = getTextValue(e,Constants.XML_TAG_RATE);
+                String desc = getTextValue(e,Constants.XML_TAG_DESC);
+                String rq = getTextValue(e,Constants.XML_TAG_RATE_QUANTIFIER);
+                String rr = getTextValue(e,Constants.XML_TAG_RATE_RESTRICTION);
+                RatesBean ratesBean = new RatesBean();
+                ratesBean.setBegTime(begin);
+                ratesBean.setEndTime(end);
+                ratesBean.setDesc(desc);
+                ratesBean.setRateQuantifier(rq);
+                ratesBean.setRateRestriction(rr);
+                if(rate != null) {
+                    ratesBean.setRate(Double.parseDouble(rate));
+                }
+                ratesBeanList.add(ratesBean);
+            }
+        }
+        return ratesBeanList;
+    }
 }

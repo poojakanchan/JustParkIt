@@ -33,10 +33,22 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
         <activity
             android:name="com.parkingapp.sample.DisplayFavorite"
-            android:label="@string/title_activity_display_favorite" >
+            android:label="@string/title_activity_display_favorite"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
+            android:name="com.parkingapp.sample.DisplayFavorites"
+            android:label="@string/title_activity_display_favorite"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="com.parkingapp.sample.RecyclerViewActivity"
+            android:label="@string/title_activity_display_favorite"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 
