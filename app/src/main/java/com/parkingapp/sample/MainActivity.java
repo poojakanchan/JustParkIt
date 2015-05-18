@@ -108,13 +108,16 @@ public class MainActivity extends AppCompatActivity implements
     List<Marker> markers = new ArrayList<>();
     FavoritesConnectionHandler fdb;
 
+    /**
+     *
+     * @param savedInstanceState
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fdb = new FavoritesConnectionHandler(this);
 
         if (checkPlayServices()) {
             buildGoogleApiClient();
-
             createLocationRequest();
         }
         checkGPSStatus();
@@ -137,6 +140,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * Creates LocationRequest object. We also set the update interval in milliseconds and we also
+     * set the minimum displacement between location updates in meters.
+     */
     protected void createLocationRequest() {
         int UPDATE_INTERVAL = 10000;
         int FASTEST_INTERVAL = 5000;
