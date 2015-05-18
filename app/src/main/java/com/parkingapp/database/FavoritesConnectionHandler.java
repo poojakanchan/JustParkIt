@@ -24,14 +24,22 @@ public class FavoritesConnectionHandler extends SQLiteOpenHelper {
     public static final String FAVORITES_COLUMN_ID = "id";
     public static final String FAVORITES_COLUMN_SNIPPET = "snippet";
     public String value;
-    public String str;
 
-    private HashMap hp;
     private static FavoritesConnectionHandler favoritesConnectionHandler;
 
+    /**
+     *
+     * @param context
+     */
     public FavoritesConnectionHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
+
+    /**
+     * This class provides an instance to the FavoritesConnectionHandler class.
+     * @param context
+     * @return favoritesConnectionHandler
+     */
 
     public static FavoritesConnectionHandler getDBHandler(Context context) {
         if (favoritesConnectionHandler == null) {
@@ -41,6 +49,13 @@ public class FavoritesConnectionHandler extends SQLiteOpenHelper {
         return favoritesConnectionHandler;
     }
 
+    /**
+     * Called when application is first loaded.
+     *
+     * A table called "favorites' is created with two columns. An id column which is the primary key
+     * and a snippet column which holds the information for a specific marker/location.
+     * @param db - database that will be used to hold favorite locations.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(

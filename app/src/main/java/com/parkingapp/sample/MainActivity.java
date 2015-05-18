@@ -114,15 +114,13 @@ public class MainActivity extends AppCompatActivity implements
 
         if (checkPlayServices()) {
             buildGoogleApiClient();
+
+            createLocationRequest();
         }
         checkGPSStatus();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
         SfParkBeanList = new ArrayList<SFParkBean>();
         setContentView(R.layout.activity_map);
+
         ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
         dbConnectionHandler = DBConnectionHandler.getDBHandler(contextWrapper);
         setUpMapIfNeeded();
@@ -130,26 +128,25 @@ public class MainActivity extends AppCompatActivity implements
         mMap.setMyLocationEnabled(true);
         mMap.getMyLocation();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        // setup default location onMap load event
-
-        double lat = 37.7441667;
-        double lng = -122.4383333;
-        //LatLng coordinate = new LatLng(lat, lng);
-        //CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
-        
         // changed default location from sfsu to sf
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.7441667, -122.4383333));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(13);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
 
+    }
+
+    protected void createLocationRequest() {
+        int UPDATE_INTERVAL = 10000;
+        int FASTEST_INTERVAL = 5000;
+        int DISPLACEMENT = 10;
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(DISPLACEMENT); // set to 10 meters.
     }
 
   /* This method checks if the user has GPS and Network Services enabled.
@@ -194,18 +191,26 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Build a GoogleApiClient. Uses addApi() to request the LocationServices API
+     */
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
+                .addApi(LocationServices.API)
+                .build();
     }
 
+    /**
+     * Verifies that Google Play services are enabled on the user's device
+     * @return
+     */
     private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+        int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(result)) {
+                GooglePlayServicesUtil.getErrorDialog(result, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
                 Toast.makeText(getApplicationContext(),
                         "Google Play services are not available", Toast.LENGTH_LONG).show();
@@ -273,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public boolean onMarkerClick(Marker marker) {
                 markers.add(marker);
-                if(marker.isInfoWindowShown()) {
+                if (marker.isInfoWindowShown()) {
                     marker.hideInfoWindow();
                 } else {
                     marker.showInfoWindow();
@@ -533,6 +538,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
+
     private List<Address> getGeoCoder(LatLng latLng) {
         Geocoder geocoder = new Geocoder(getApplicationContext());
         Geocoder.isPresent();
@@ -728,8 +734,6 @@ public class MainActivity extends AppCompatActivity implements
                 .position(latLng)
                 .title(title)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))).showInfoWindow();
-
-
     }
 
    private String getLocationText(Marker marker) {
@@ -854,7 +858,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1028,9 +1031,6 @@ public class MainActivity extends AppCompatActivity implements
                 Marker currentMarker = markers.get(markers.size()-1);
 
                 test_string = currentMarker.getTitle();
-                //Toast.makeText(getApplicationContext(),
-                //        test_string,
-                //        Toast.LENGTH_SHORT).show();
                 DialogFragment myFragment = new AddToFavoritesDialog();
                 myFragment.show(getFragmentManager(), "testDialog");
                     try {
@@ -1046,23 +1046,9 @@ public class MainActivity extends AppCompatActivity implements
                         "Please tap the marker you'd like to save",
                         Toast.LENGTH_SHORT).show();
             }
-
-            /*
-            try {
-                if (SfParkBeanList != null && SfParkBeanList.size() != 0) {
-                    dbConnectionHandler.insertParkingInfo(SfParkBeanList);
-                    Toast.makeText(getApplicationContext(), "Current Parking info added to favorites", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
-                }
-            } catch (SQLiteException e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), "Failed to add current parking info to favorites", Toast.LENGTH_LONG).show();
-            }
-            */
         }
 
-        //when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
+        // when user clicks View Favorites, the favorite parking information will be displayed in a separate activity
         if (id == R.id.action_view_favorites) {
             Intent intent = new Intent(this, RecyclerViewActivity.class);
             startActivity(intent);
@@ -1070,6 +1056,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
     @Override
@@ -1080,37 +1067,48 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Begins location updates using the FusedLocationApi
+     */
     protected void startLocationUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
 
+    /**
+     * Stops location updates using the FusedLocationApi
+     */
     protected void stopLocationUpdates() {
         // commenting this out for now. causes force close since we are still relying on the old LocationListener
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
     }
 
-
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     *
+     * @param connectionHint
+     */
     @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnected(Bundle arg0) {
+    public void onConnected(Bundle connectionHint) {
         if(mRequestingLocationUpdates) {
             startLocationUpdates();
         }
     }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
     /**
-     *
+     * Used to create a dialog fragment when a user attempts to add a location to their favorites.
      */
     public static class AddToFavoritesDialog extends DialogFragment {
         @Override
@@ -1307,6 +1305,4 @@ public class MainActivity extends AppCompatActivity implements
             return -1;
         }
     }
-
-
 }
