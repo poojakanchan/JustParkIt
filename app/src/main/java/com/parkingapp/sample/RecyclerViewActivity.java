@@ -28,6 +28,14 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView rv;
     FavoritesConnectionHandler favoritesConnectionHandler;
 
+    /**
+     * Here we initialize a LayoutManager which will manage the position of the text items.
+     *
+     * It is possible to define our own LayoutManager but I decided to use one of the predefined
+     * LayoutManager subclasses, the LinearLayoutManager subclass. This will make our RecyclerView
+     * look just like a ListView.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +53,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
         initializeAdapter();
     }
 
+    /**
+     * Creates an array list has multiple Marker objects.
+     */
     private void initializeData(){
         ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
         favoritesConnectionHandler = FavoritesConnectionHandler.getDBHandler(contextWrapper);
@@ -72,37 +83,33 @@ public class RecyclerViewActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Here we initialize the adapter by calling the adapter's constructor and the RecyclerView's
+     * setAdapter method.
+     */
     private void initializeAdapter(){
         RVAdapter adapter = new RVAdapter(markers);
         rv.setAdapter(adapter);
     }
 
+    /**
+     * Returns the favInfoDialog that is implemented below
+     * @param view
+     */
     public void showMoreInfo(View view) {
         DialogFragment myFragment = new FavoriteInformation();
         myFragment.show(getFragmentManager(), "favInfoDialog");
     }
 
+    /**
+     * Used to create a dialog fragment when a user attempts to add a location to their favorites.
+     */
     public static class FavoriteInformation extends DialogFragment {
-        /*String mStr;
-        static FavoriteInformation newInstance(String str) {
-            FavoriteInformation f = new FavoriteInformation();
-
-            Bundle args = new Bundle();
-            args.putString("str", str);
-            f.setArguments(args);
-
-            return f;
-        }*/
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder favInfoDialog = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
             favInfoDialog.setTitle("TEST DIALOG");
             favInfoDialog.setMessage("Test for the test that I'm testing for the test of the test.");
-            favInfoDialog.setNegativeButton("CLOSE", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                }
-            });
             return favInfoDialog.create();
         }
     }

@@ -1108,7 +1108,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     *
+     * Used to create a dialog fragment when a user attempts to add a location to their favorites.
      */
     public static class AddToFavoritesDialog extends DialogFragment {
         @Override
@@ -1305,6 +1305,4 @@ public class MainActivity extends AppCompatActivity implements
             return -1;
         }
     }
-
-
 }
