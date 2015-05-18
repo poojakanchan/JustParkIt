@@ -116,11 +116,6 @@ public class MainActivity extends AppCompatActivity implements
             buildGoogleApiClient();
         }
         checkGPSStatus();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
         SfParkBeanList = new ArrayList<SFParkBean>();
         setContentView(R.layout.activity_map);
         ContextWrapper contextWrapper = new ContextWrapper(getBaseContext());
@@ -138,14 +133,10 @@ public class MainActivity extends AppCompatActivity implements
 
         // setup default location onMap load event
 
-        double lat = 37.7441667;
-        double lng = -122.4383333;
-        //LatLng coordinate = new LatLng(lat, lng);
-        //CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
-        
+
         // changed default location from sfsu to sf
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.7441667, -122.4383333));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(37.721897, -122.47820939999997));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(13);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
@@ -273,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public boolean onMarkerClick(Marker marker) {
                 markers.add(marker);
-                if(marker.isInfoWindowShown()) {
+                if (marker.isInfoWindowShown()) {
                     marker.hideInfoWindow();
                 } else {
                     marker.showInfoWindow();
