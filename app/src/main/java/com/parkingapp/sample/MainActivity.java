@@ -229,6 +229,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    /**
+     * Checks for google api client
+     */
     protected void onStart() {
         super.onStart();
         if (mGoogleApiClient != null) {
@@ -238,6 +241,9 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
+    /**
+     * checks for play services
+     */
     protected void onResume() {
         super.onResume();
 
@@ -250,6 +256,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    /**
+     * disconnects google api client if app in on stop
+     */
     protected void onStop() {
         super.onStop();
         if (mGoogleApiClient.isConnected()) {
@@ -258,12 +267,17 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    /**
+     * Stops location updates when app is on pause
+     */
     protected void onPause() {
         super.onPause();
         stopLocationUpdates();
     }
 
-
+    /**
+     * Sets up a map fragment if needed
+     */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -278,6 +292,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Method used to setup a google map fragment
+     */
     private void setUpMap() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -297,6 +314,10 @@ public class MainActivity extends AppCompatActivity implements
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             private Location mLocation = null;
 
+            /**
+             * This method moves camera of map according to users current location
+             * @param myLocation current location of user
+             */
             @Override
             public void onMyLocationChange(Location myLocation) {
 
@@ -342,6 +363,10 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    /**
+     * Method is used to obtain and display street cleaning data of tapped area on map
+     * @param latLng coordinates of the location tapped by user
+     */
     private void setStreetCleaningAndParkingInformation(LatLng latLng) {
        //note: parking API is called inside addMarker method.
         Geocoder geocoder = new Geocoder(getApplicationContext());
@@ -546,6 +571,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Method used to get address information from coordinates by using geocoder
+     * @param latLng coordinates of interest
+     * @return
+     */
     private List<Address> getGeoCoder(LatLng latLng) {
         Geocoder geocoder = new Geocoder(getApplicationContext());
         Geocoder.isPresent();
@@ -558,6 +588,13 @@ public class MainActivity extends AppCompatActivity implements
         return matches;
     }
 
+    /**
+     * Method used to create poly lines on Google map to indicated street cleaning
+     * @param rightFrom starting point of right side of street
+     * @param rightTo ending point of right side of street
+     * @param leftFrom starting point of left side of street
+     * @param leftTo ending point of left side of street
+     */
     private void drawLine(String rightFrom, String rightTo, String leftFrom, String leftTo) {
         Log.d("method:", "Drawline method called");
         Geocoder geocoder = new Geocoder(getApplicationContext());
@@ -603,7 +640,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    /**
+     * Method used to update position information of the marker
+     * @param latLng coordinates of interest
+     */
     private void updateMarkerPosition(LatLng latLng) {
 
         //Log.d("DEMO=====>", latLng.toString());
@@ -684,6 +724,17 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Method for adding custom marker to display parking and street cleaning information
+     * @param latLng coordinates of interest
+     * @param title
+     * @param rightFrom starting point of right side of street
+     * @param rightTo ending point of right side of street
+     * @param leftFrom starting point of left side of street
+     * @param leftTo ending point of left side of street
+     * @param text displaying information related to tapped location
+     * @param side
+     */
     private void addMarker(LatLng latLng, final String title, String rightFrom, String rightTo, String leftFrom, String leftTo,
                            final String[] text, final String[] side) {
 
@@ -743,6 +794,11 @@ public class MainActivity extends AppCompatActivity implements
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))).showInfoWindow();
     }
 
+    /**
+     * Method used to get text from SFpark
+     * @param marker inforamtion from marker
+     * @return string of information about parking
+     */
    private String getLocationText(Marker marker) {
        StringBuilder info = new StringBuilder();
        for(int i=0; i < SfParkBeanList.size() ; i++) {
@@ -833,6 +889,10 @@ public class MainActivity extends AppCompatActivity implements
        return info.toString();
    }
 
+    /**
+     * Method used to display parking location information to marker
+     * @param latLng coordinates of interest
+     */
     private void setParkingLocations(LatLng latLng) {
         SFParkHandler sfParkHandler = new SFParkHandler();
         String latitude = String.valueOf(latLng.latitude);
@@ -866,6 +926,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * This method creates search bar functionality
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -889,13 +954,11 @@ public class MainActivity extends AppCompatActivity implements
                                                   try {
                                                       List<Address> add = geo.getFromLocationName(text, 1);
                                                       for (Address adds : add) {
-                                                          if (add.size() > 0) {//Controls to ensure it is right address such as country etc.
+                                                          if (add.size() > 0) {
                                                               double longitude = adds.getLongitude();
                                                               double latitude = adds.getLatitude();
                                                               LatLng searched = new LatLng(latitude, longitude);
-                                                              //markerOptions.position(searched);
-                                                              //markerOptions.title("Your destination");
-                                                              //mMap.addMarker(markerOptions);
+
                                                               if (searched != null) {
                                                                   CameraUpdate center = CameraUpdateFactory.newLatLng(searched);
                                                                   CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
@@ -917,6 +980,11 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
+    /**
+     * Method created all menus in action bar and there functionalities
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -1065,7 +1133,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
+    /**
+     * checks for location change
+     * @param location your location
+     */
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
@@ -1103,12 +1174,19 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    /**
+     * This method handles failed connection
+     * @param connectionResult
+     */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
 
+    /**
+     * This method handles temporary disconnection
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         mGoogleApiClient.connect();
@@ -1252,22 +1330,44 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     // getter and setter for Information. In order to access it globally.
+
+    /**
+     * This method is an inforamtion setter
+     * @param information
+     */
     public void setInformation(String information) {
         this.information = information;
     }
 
+    /**
+     * This method is an information getter
+     * @return
+     */
     public String getInformation() {
         return information;
     }
 
+    /**
+     * This method is a street cleaning information setter
+     * @param streetCleaningInformation
+     */
     public void setStreetCleaningInformation(String streetCleaningInformation) {
         this.streetCleaningInformation = streetCleaningInformation;
     }
 
+    /**
+     * This is a street cleaning information getter
+     * @return
+     */
     public String getStreetCleaningInformation() {
         return streetCleaningInformation;
     }
 
+    /**
+     * This is a day of the week information getter
+     * @param value
+     * @return
+     */
     private String getDayOfWeek(int value) {
         String day = null;
         switch (value) {
@@ -1296,7 +1396,9 @@ public class MainActivity extends AppCompatActivity implements
         return day;
     }
 
-
+    /**
+     * This method is for querying
+     */
     private static class InflatingEntity extends HttpEntityWrapper {
         public InflatingEntity(HttpEntity wrapped) {
             super(wrapped);
